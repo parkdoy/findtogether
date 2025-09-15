@@ -2,30 +2,19 @@ import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs'; // This will be removed
 import axios from 'axios';
-import { Storage } from '@google-cloud/storage'; // Added
+import { Storage } from '@google-cloud/storage';
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-// --- Google Cloud Storage Setup --- // Added
+// --- Google Cloud Storage Setup ---
 const storageClient = new Storage();
-// IMPORTANT: Replace 'your-gcs-bucket-name' with your actual GCS bucket name.
-// You can also set this via an environment variable (e.g., GCS_BUCKET_NAME)
-const bucketName = process.env.GCS_BUCKET_NAME || 'findtogetherbucket'; // Placeholder bucket name
+const bucketName = process.env.GCS_BUCKET_NAME || 'findtogetherbucket';
 const bucket = storageClient.bucket(bucketName);
 
 // --- File Upload Setup ---
-// Removed local uploadsDir and fs.mkdirSync
-// const uploadsDir = path.join(__dirname, 'uploads');
-// fs.mkdirSync(uploadsDir, { recursive: true });
-
-// Changed to memory storage for multer
 const upload = multer({ storage: multer.memoryStorage() });
-
-// Removed serving static files from the uploads directory
-// app.use('/uploads', express.static(uploadsDir));
 
 // --- Data Structures ---
 interface Report {
@@ -34,7 +23,7 @@ interface Report {
   lng: number;
   time: string;
   description: string;
-  imageUrl?: string; // Optional image URL
+  imageUrl?: string; // Now stores GCS object name
 }
 
 interface Post {
@@ -44,18 +33,18 @@ interface Post {
   lastSeenTime: string;
   lastSeenLocation: { lat: number; lng: number };
   reports: Report[];
-  imageUrl?: string; // Optional image URL
+  imageUrl?: string; // Now stores GCS object name
 }
 
 // --- In-Memory Database ---
 let posts: Post[] = [];
-let reports: Report[] = []; // New top-level reports array
+let reports: Report[] = [];
 let nextPostId = 1;
 let nextReportId = 1;
 
 app.use(cors());
-app.use(express.json()); // for parsing application/json
-app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 
 // --- API Endpoints ---
@@ -76,7 +65,7 @@ app.get('/api/geocode', async (req, res) => {
         limit: 1
       },
       headers: {
-        'User-Agent': 'FindTogetherApp/1.0 (my@email.com)' // Nominatim requires a User-Agent
+        'User-Agent': 'FindTogetherApp/1.0 (my@email.com)'
       }
     });
 
@@ -98,6 +87,7 @@ app.get('/api/reports', (req, res) => {
 });
 
 // Helper function to upload file to GCS
+// Now returns the object name instead of a public URL
 const uploadFileToGCS = async (file: Express.Multer.File): Promise<string> => {
   const uniqueFileName = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname);
   const blob = bucket.file(uniqueFileName);
@@ -111,21 +101,41 @@ const uploadFileToGCS = async (file: Express.Multer.File): Promise<string> => {
   return new Promise((resolve, reject) => {
     blobStream.on('error', (err) => reject(err));
     blobStream.on('finish', () => {
-      // Make the file publicly accessible
-      // This requires the bucket to have appropriate IAM permissions (e.g., allUsers:objectViewer)
-      // Or you can generate signed URLs for private buckets
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-      resolve(publicUrl);
+      // Return the object name, not a public URL
+      resolve(blob.name);
     });
     blobStream.end(file.buffer);
   });
 };
 
+// NEW: Endpoint to generate a signed URL for a GCS object
+app.get('/api/signed-url', async (req, res) => {
+  const { filename } = req.query;
+
+  if (!filename || typeof filename !== 'string') {
+    return res.status(400).json({ message: 'Filename is required' });
+  }
+
+  try {
+    const options = {
+      version: 'v4' as 'v4', // Specify v4 signed URL
+      action: 'read' as 'read',
+      expires: Date.now() + 15 * 60 * 1000, // URL expires in 15 minutes
+    };
+
+    const [url] = await bucket.file(filename).getSignedUrl(options);
+    res.json({ signedUrl: url });
+  } catch (error) {
+    console.error('Error generating signed URL:', error);
+    res.status(500).json({ message: 'Failed to generate signed URL' });
+  }
+});
+
 
 // Endpoint to create a new standalone report
-app.post('/api/report', upload.single('image'), async (req, res) => { // Made async
+app.post('/api/report', upload.single('image'), async (req, res) => {
   const { description, lat, lng } = req.body;
-  let imageUrl: string | undefined;
+  let imageUrl: string | undefined; // This will now store the GCS object name
 
   if (req.file) {
     try {
@@ -158,9 +168,9 @@ app.get('/api/posts', (req, res) => {
   res.json(posts);
 });
 
-app.post('/api/posts', upload.single('image'), async (req, res) => { // Made async
+app.post('/api/posts', upload.single('image'), async (req, res) => {
   const { name, features, lastSeenTime, lastSeenLocation } = req.body;
-  let imageUrl: string | undefined;
+  let imageUrl: string | undefined; // This will now store the GCS object name
 
   if (req.file) {
     try {
@@ -171,7 +181,6 @@ app.post('/api/posts', upload.single('image'), async (req, res) => { // Made asy
     }
   }
 
-  // lastSeenLocation will be a JSON string, so we need to parse it
   const parsedLocation = JSON.parse(lastSeenLocation);
 
   if (!name || !lastSeenTime || !parsedLocation) {
@@ -193,7 +202,7 @@ app.post('/api/posts', upload.single('image'), async (req, res) => { // Made asy
   res.status(201).json(newPost);
 });
 
-app.post('/api/posts/:postId/reports', upload.single('image'), async (req, res) => { // Made async
+app.post('/api/posts/:postId/reports', upload.single('image'), async (req, res) => {
   const postId = parseInt(req.params.postId, 10);
   const post = posts.find(p => p.id === postId);
 
@@ -202,7 +211,7 @@ app.post('/api/posts/:postId/reports', upload.single('image'), async (req, res) 
   }
 
   const { time, description, location } = req.body;
-  let imageUrl: string | undefined;
+  let imageUrl: string | undefined; // This will now store the GCS object name
 
   if (req.file) {
     try {
