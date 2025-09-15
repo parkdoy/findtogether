@@ -161,7 +161,7 @@ function App() {
             <ReportForm 
               selectedPostName={selectedPostName || ''}
               onSubmit={handleReportSubmit}
-              handleAddressSearch={handleAddressSearch}
+              handleAddressSearch={handleAddressSearch} 
               onCancel={switchToPostMode}
               reportLocation={reportLocation}
               setReportLocation={setReportLocation}
@@ -171,7 +171,7 @@ function App() {
           <hr style={{ margin: '20px 0' }} />
 
           <h2>게시글 목록</h2>
-          <PostList posts={posts} />
+          <PostList posts={posts} apiUrl={API_URL} />
 
         </div>
 
@@ -189,6 +189,7 @@ function App() {
           setMapCenter={setMapCenter}
           setSelectedPostIdForReport={setSelectedPostIdForReport}
           switchToReportMode={switchToReportMode}
+          apiUrl={API_URL} // Added
         />
       </div>
     </>

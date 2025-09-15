@@ -5,7 +5,7 @@ export interface Report {
   lng: number;
   time: string;
   description: string;
-  imageUrl?: string; // Optional image URL
+  imageUrl?: string; // Optional GCS object name
   geocodedAddress?: string; // Added for geocoded address
 }
 
@@ -16,7 +16,7 @@ export interface Post {
   lastSeenTime: string;
   lastSeenLocation: { lat: number; lng: number };
   reports: Report[];
-  imageUrl?: string; // Optional image URL
+  imageUrl?: string; // Optional GCS object name
   geocodedAddress?: string; // Added for geocoded address
 }
 
