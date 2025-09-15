@@ -6,7 +6,7 @@ import fs from 'fs';
 import axios from 'axios';
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;   
 
 // --- File Upload Setup ---
 const uploadsDir = path.join(__dirname, 'uploads');
