@@ -11,6 +11,8 @@ import MapView from './components/MapView';
 
 setupLeafletIcon();
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function App() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.5665, 126.9780]);
@@ -25,7 +27,7 @@ function App() {
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/posts')
+    fetch(`${API_URL}/api/posts`)
       .then(res => res.json())
       .then(data => setPosts(data))
       .catch(err => console.error("Failed to fetch posts:", err));
@@ -83,7 +85,7 @@ function App() {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:3001/api/geocode?address=${encodeURIComponent(addressString)}`);
+      const res = await fetch(`${API_URL}/api/geocode?address=${encodeURIComponent(addressString)}`);
       if (!res.ok) {
         throw new Error('주소를 찾을 수 없습니다.');
       }
@@ -97,7 +99,7 @@ function App() {
   };
 
   const handlePostSubmit = (formData: FormData) => {
-    fetch('http://localhost:3001/api/posts', {
+    fetch(`${API_URL}/api/posts`, {
       method: 'POST',
       body: formData,
     })
@@ -111,7 +113,7 @@ function App() {
   const handleReportSubmit = (formData: FormData) => {
     if (!selectedPostId) return;
 
-    fetch(`http://localhost:3001/api/posts/${selectedPostId}/reports`, {
+    fetch(`${API_URL}/api/posts/${selectedPostId}/reports`, {
       method: 'POST',
       body: formData,
     })
