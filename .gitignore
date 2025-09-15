@@ -227,5 +227,5 @@ node_modules
 psd
 thumb
 sketch
-
+*.mp4
 # End of https://www.toptal.com/developers/gitignore/api/react,expressionengine,node
