@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { Post, Location } from '../types';
+import SignedImage from './SignedImage'; // New import
 
 // --- Map Components --- //
 
@@ -56,6 +57,7 @@ interface MapViewProps {
   setMapCenter: (center: [number, number]) => void;
   setSelectedPostIdForReport: (id: number | null) => void;
   switchToReportMode: (id: number) => void;
+  apiUrl: string; // Added
 }
 
 const MapView = ({ 
@@ -71,7 +73,8 @@ const MapView = ({
   setReportLocation, 
   setMapCenter, 
   setSelectedPostIdForReport, 
-  switchToReportMode 
+  switchToReportMode,
+  apiUrl // Added
 }: MapViewProps) => {
   const popupRef = useRef<L.Popup>(null);
 
@@ -101,7 +104,14 @@ const MapView = ({
               }}
             >
               <Popup ref={popupRef}>
-                {post.imageUrl && <img src={`http://localhost:3001${post.imageUrl}`} alt={post.name} style={{ maxWidth: '150px', maxHeight: '150px', display: 'block', marginBottom: '5px' }} />}
+                {post.imageUrl && (
+                  <SignedImage
+                    gcsObjectName={post.imageUrl}
+                    alt={post.name}
+                    apiUrl={apiUrl}
+                    style={{ maxWidth: '150px', maxHeight: '150px', display: 'block', marginBottom: '5px' }}
+                  />
+                )}
                 <b>이름</b>: {post.name}<br />
                 <b>장소</b>: {post.geocodedAddress || '불러오는 중...'}<br />
                 <b>날짜</b>: {new Date(post.lastSeenTime).toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/\./g, '.').replace(/ /g, '').slice(0, -3)}<br />
@@ -117,7 +127,14 @@ const MapView = ({
                   .map(report => (
                     <Marker key={report.id} position={{ lat: report.lat, lng: report.lng }}>
                       <Popup>
-                        {report.imageUrl && <img src={`http://localhost:3001${report.imageUrl}`} alt={report.description} style={{ maxWidth: '150px', maxHeight: '150px', display: 'block', marginBottom: '5px' }} />}
+                        {report.imageUrl && (
+                          <SignedImage
+                            gcsObjectName={report.imageUrl}
+                            alt={report.description}
+                            apiUrl={apiUrl}
+                            style={{ maxWidth: '150px', maxHeight: '150px', display: 'block', marginBottom: '5px' }}
+                          />
+                        )}
                         <b>제보 시간</b>: {new Date(report.time).toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/\./g, '.').replace(/ /g, '').slice(0, -3)}<br />
                         <b>제보 장소</b>: {report.geocodedAddress || '불러오는 중...'}<br />
                         <b>설명</b>: {report.description}
