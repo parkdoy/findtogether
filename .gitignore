@@ -229,3 +229,6 @@ thumb
 sketch
 *.mp4
 # End of https://www.toptal.com/developers/gitignore/api/react,expressionengine,node
+
+# Service account keys
+backend/lofty-object-472213-v6-eba24723f01d.json
