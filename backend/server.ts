@@ -112,9 +112,21 @@ const uploadFileToGCS = async (file: Express.Multer.File): Promise<string> => {
 app.get('/api/signed-url', async (req, res) => {
   const { filename } = req.query;
 
+  // 1. [DEBUG] Log the received filename
+  console.log('1. [DEBUG] API call received for filename:', filename);
+  
   if (!filename || typeof filename !== 'string') {
+    console.error('2. [DEBUG] Error: Filename is missing or not a string');
     return res.status(400).json({ message: 'Filename is required' });
   }
+
+  // Debugging the bucket and storage client
+  const storageClient = new Storage();
+  const bucketName = process.env.GCS_BUCKET_NAME || 'findtogetherbucket';
+  const bucket = storageClient.bucket(bucketName);
+  
+  console.log('3. [DEBUG] Using bucket name:', bucketName);
+  console.log('4. [DEBUG] Bucket object:', bucket);
 
   try {
     const options = {
@@ -124,13 +136,17 @@ app.get('/api/signed-url', async (req, res) => {
     };
 
     const [url] = await bucket.file(filename).getSignedUrl(options);
+    
+    // 5. [DEBUG] Log the generated URL on success
+    console.log('5. [DEBUG] Signed URL generated successfully:', url);
+    
     res.json({ signedUrl: url });
   } catch (error) {
-    console.error('Error generating signed URL:', error);
+    // 6. [DEBUG] Log the full error object on failure
+    console.error('6. [DEBUG] Error generating signed URL:', error);
     res.status(500).json({ message: 'Failed to generate signed URL' });
   }
 });
-
 
 // Endpoint to create a new standalone report
 app.post('/api/report', upload.single('image'), async (req, res) => {
