@@ -3,14 +3,14 @@ FROM node:20-slim AS builder
 
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copy package.json and package-lock.json from the backend directory
+COPY backend/package*.json ./
 
 # Install all dependencies
 RUN npm install
 
-# Copy the rest of the source code
-COPY . .
+# Copy the rest of the backend source code
+COPY backend/ ./
 
 # Compile TypeScript to JavaScript
 RUN npm run build
@@ -22,8 +22,8 @@ ENV NODE_ENV=production
 
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copy package.json and package-lock.json from the backend directory
+COPY backend/package*.json ./
 
 # Install only production dependencies
 RUN npm install --omit=dev
