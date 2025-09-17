@@ -2,7 +2,7 @@ import type { Post, Report } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-const geocodeLocation = async (lat: number, lng: number): Promise<string> => {
+export const geocodeLocation = async (lat: number, lng: number): Promise<string> => {
   if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) {
     console.warn('Invalid coordinates provided for reverse geocoding:', lat, lng);
     return '유효하지 않은 좌표';
