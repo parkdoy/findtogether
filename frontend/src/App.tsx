@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
 
-import type { Post, Location } from './types';
+import type { Post, Location, Report } from './types';
 import { setupLeafletIcon } from './utils';
-import { updateGeocodedAddresses } from './utils/geocoding';
+import { updateGeocodedAddresses, geocodeLocation } from './utils/geocoding';
 import PostList from './components/PostList';
 import PostForm from './components/PostForm';
 import ReportForm from './components/ReportForm';
@@ -30,17 +30,13 @@ function App() {
   useEffect(() => {
     fetch(`${API_URL}/api/posts`)
       .then(res => res.json())
-      .then(data => setPosts(data))
+      .then(initialPosts => {
+        updateGeocodedAddresses(initialPosts).then(geocodedPosts => {
+          setPosts(geocodedPosts);
+        });
+      })
       .catch(err => console.error("Failed to fetch posts:", err));
   }, []);
-
-  useEffect(() => {
-    if (posts.length > 0) {
-      updateGeocodedAddresses(posts).then(updatedPosts => {
-        setPosts(updatedPosts);
-      });
-    }
-  }, [posts]);
 
   const handleAddressSearch = async (addressString: string, locationSetter: (location: Location) => void) => {
     if (!addressString) {
@@ -67,8 +63,9 @@ function App() {
       body: formData,
     })
     .then(res => res.json())
-    .then(newPost => {
-      setPosts(prevPosts => [newPost, ...prevPosts]);
+    .then(async (newPost: Post) => {
+      const [geocodedPost] = await updateGeocodedAddresses([newPost]);
+      setPosts(prevPosts => [geocodedPost, ...prevPosts]);
     })
     .catch(err => console.error("Failed to submit post:", err));
   };
@@ -81,10 +78,13 @@ function App() {
       body: formData,
     })
     .then(res => res.json())
-    .then(newReport => {
+    .then(async (newReport: Report) => {
+      const geocodedAddress = await geocodeLocation(newReport.lat, newReport.lng);
+      const newReportWithAddress = { ...newReport, geocodedAddress };
+
       const updatedPosts = posts.map(p => {
         if (p.id === selectedPostId) {
-          const reports = p.reports ? [...p.reports, newReport] : [newReport];
+          const reports = p.reports ? [...p.reports, newReportWithAddress] : [newReportWithAddress];
           return { ...p, reports };
         }
         return p;

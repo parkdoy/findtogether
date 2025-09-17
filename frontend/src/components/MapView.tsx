@@ -105,9 +105,13 @@ const MapView = ({
                   position={postLatLng}
                   eventHandlers={{
                     click: () => {
-                      setSelectedPostIdForReport(post.id);
-                      setMapCenter([postLatLng.lat, postLatLng.lng]);
-                      setZoom(16);
+                      if (selectedPostIdForReport === post.id) {
+                        setSelectedPostIdForReport(null);
+                      } else {
+                        setSelectedPostIdForReport(post.id);
+                        setMapCenter([postLatLng.lat, postLatLng.lng]);
+                        setZoom(16);
+                      }
                     },
                   }}
                 >
