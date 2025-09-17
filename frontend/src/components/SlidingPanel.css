@@ -1,0 +1,77 @@
+.sliding-panel-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  position: relative; /* Needed for absolute positioning of children */
+}
+
+.main-sidebar {
+  width: 60px; /* Fixed width for the main sidebar */
+  background-color: #f8f9fa;
+  padding: 10px;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid #dee2e6;
+}
+
+.tab-button {
+  margin-bottom: 10px;
+  padding: 10px 5px;
+  width: 100%;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: #495057;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  height: 60px;
+}
+
+.tab-button:hover {
+  background-color: #e9ecef;
+}
+
+.tab-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.expanding-panel {
+  width: 350px; /* Width of the expanded panel */
+  background-color: #ffffff;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  position: absolute;
+  left: 60px; /* Position it right next to the main sidebar */
+  height: 100%;
+  z-index: 1000;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  overflow-y: auto;
+}
+
+.expanding-panel.open {
+  transform: translateX(0);
+}
+
+.panel-content {
+  padding: 20px;
+}
+
+.main-content {
+  flex-grow: 1;
+  /* The map will take the remaining space */
+  /* No padding-left needed as the map is a direct child of the container */
+}
+
+/* This container is no longer a direct child, adjust if needed elsewhere */
+.sliding-panel-container.panel-open .main-content {
+    /* This rule might not be necessary anymore depending on final structure */
+    /* If MapView is outside SlidingPanel, this logic needs to be handled differently */
+}
+  
