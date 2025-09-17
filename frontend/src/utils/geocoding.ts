@@ -1,9 +1,20 @@
 import type { Post, Report } from '../types';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 const geocodeLocation = async (lat: number, lng: number): Promise<string> => {
+  if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) {
+    console.warn('Invalid coordinates provided for reverse geocoding:', lat, lng);
+    return '유효하지 않은 좌표';
+  }
+
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+    const res = await fetch(`${API_URL}/api/reverse-geocode?lat=${lat}&lng=${lng}`);
+    if (!res.ok) {
+      throw new Error(`Reverse geocoding failed with status: ${res.status}`);
+    }
     const data = await res.json();
+    
     let address = '주소 정보 없음';
     if (data.address) {
       const { city, town, village, road, neighbourhood, country } = data.address;
