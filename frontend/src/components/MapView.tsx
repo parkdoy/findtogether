@@ -4,24 +4,6 @@ import L from 'leaflet';
 import type { Post, Location } from '../types';
 import SignedImage from './SignedImage';
 
-const ChangeView = ({ center, zoom }: { center: [number, number], zoom: number }) => {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center, zoom);
-  }, [center, zoom, map]);
-  return null;
-}
-
-const MapEvents = ({ setZoom }: { setZoom: (zoom: number) => void }) => {
-  const map = useMap();
-  useMapEvents({
-    zoomend: () => {
-      setZoom(map.getZoom());
-    },
-  });
-  return null;
-};
-
 const MapClickHandler = ({ setLocation, setMapCenter, formMode, setReportLocation }: { setLocation: (location: Location) => void, setMapCenter: (center: [number, number]) => void, formMode: 'post' | 'report', setReportLocation: (location: Location) => void }) => {
   useMapEvents({
     click(e) {

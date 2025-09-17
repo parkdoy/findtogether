@@ -250,14 +250,17 @@ app.post('/api/posts/:postId/reports', upload.single('image'), async (req, res) 
             return res.status(404).json({ message: 'Post not found' });
         }
 
-        const newReport = {
+        const newReport: any = {
             lat: parsedLocation.lat,
             lng: parsedLocation.lng,
             time,
             description,
-            imageUrl,
             createdAt: new Date(),
         };
+
+        if (imageUrl) {
+            newReport.imageUrl = imageUrl;
+        }
 
         await postRef.update({
             reports: admin.firestore.FieldValue.arrayUnion(newReport)
