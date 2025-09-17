@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, useMap 
 import L from 'leaflet';
 import type { Post, Location } from '../types';
 import SignedImage from './SignedImage';
+import { type PanelType } from './SlidingPanel'; // Import PanelType
 
 const ChangeView = ({ center, zoom }: { center: [number, number], zoom: number }) => {
   const map = useMap();
@@ -22,15 +23,16 @@ const MapEvents = ({ setZoom }: { setZoom: (zoom: number) => void }) => {
   return null;
 };
 
-const MapClickHandler = ({ setLocation, setMapCenter, formMode, setReportLocation }: { setLocation: (location: Location) => void, setMapCenter: (center: [number, number]) => void, formMode: 'post' | 'report', setReportLocation: (location: Location) => void }) => {
+const MapClickHandler = ({ setLocation, setMapCenter, formMode, setReportLocation }: { setLocation: (location: Location) => void, setMapCenter: (center: [number, number]) => void, formMode: PanelType | null, setReportLocation: (location: Location) => void }) => {
   useMapEvents({
     click(e) {
       if (formMode === 'report') {
         setReportLocation(e.latlng);
-      } else {
+      } else if (formMode === 'post') {
         setLocation(e.latlng);
         setMapCenter([e.latlng.lat, e.latlng.lng]);
       }
+      // Do nothing on click if formMode is 'list' or null
     },
   });
   return null;
@@ -47,7 +49,7 @@ interface MapViewProps {
   mapCenter: [number, number];
   zoom: number;
   setZoom: (zoom: number) => void;
-  formMode: 'post' | 'report';
+  formMode: PanelType | null; // Updated type
   postLocation: Location | null;
   reportLocation: Location | null;
   selectedPostIdForReport: string | null;

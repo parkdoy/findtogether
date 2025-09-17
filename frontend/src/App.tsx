@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
 
@@ -9,6 +9,7 @@ import PostList from './components/PostList';
 import PostForm from './components/PostForm';
 import ReportForm from './components/ReportForm';
 import MapView from './components/MapView';
+import SlidingPanel, { type PanelType } from './components/SlidingPanel';
 
 setupLeafletIcon();
 
@@ -18,14 +19,13 @@ function App() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.5665, 126.9780]);
   const [zoom, setZoom] = useState(13);
-  const [formMode, setFormMode] = useState<'post' | 'report'>('post');
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [selectedPostIdForReport, setSelectedPostIdForReport] = useState<string | null>(null);
 
   const [postLocation, setPostLocation] = useState<Location | null>(null);
   const [reportLocation, setReportLocation] = useState<Location | null>(null);
 
-  const sidebarRef = useRef<HTMLDivElement>(null);
+  const [activePanel, setActivePanel] = useState<PanelType | null>('list');
 
   useEffect(() => {
     fetch(`${API_URL}/api/posts`)
@@ -66,6 +66,7 @@ function App() {
     .then(async (newPost: Post) => {
       const [geocodedPost] = await updateGeocodedAddresses([newPost]);
       setPosts(prevPosts => [geocodedPost, ...prevPosts]);
+      setActivePanel('list'); // Switch to list view after posting
     })
     .catch(err => console.error("Failed to submit post:", err));
   };
@@ -90,61 +91,56 @@ function App() {
         return p;
       });
       setPosts(updatedPosts);
-      switchToPostMode();
+      setActivePanel('list'); // Switch to list view after reporting
     })
     .catch(err => console.error("Failed to submit report:", err));
   };
 
   const switchToReportMode = (postId: string) => {
-    setFormMode('report');
     setSelectedPostId(postId);
-    sidebarRef.current?.scrollTo(0, 0);
+    setActivePanel('report');
   };
 
-  const switchToPostMode = () => {
-    setFormMode('post');
-    setSelectedPostId(null);
-  }
+  const selectedPostName = activePanel === 'report' && selectedPostId ? posts.find(p => p.id === selectedPostId)?.name : '';
 
-  const selectedPostName = formMode === 'report' ? posts.find(p => p.id === selectedPostId)?.name : '';
+  const renderPanelContent = () => {
+    switch (activePanel) {
+      case 'post':
+        return <PostForm 
+          onSubmit={handlePostSubmit} 
+          handleAddressSearch={handleAddressSearch} 
+          postLocation={postLocation} 
+          setPostLocation={setPostLocation} 
+        />;
+      case 'report':
+        return <ReportForm 
+          selectedPostName={selectedPostName || ''}
+          onSubmit={handleReportSubmit}
+          handleAddressSearch={handleAddressSearch} 
+          onCancel={() => setActivePanel('list')} // Go back to list
+          reportLocation={reportLocation}
+          setReportLocation={setReportLocation}
+        />;
+      case 'list':
+        return <PostList posts={posts} apiUrl={API_URL} onReportClick={switchToReportMode} />;
+      default:
+        return null;
+    }
+  };
 
   return (
-    <>
-      <div style={{ height: '100vh', width: '100%', display: 'flex' }}>
-        <div className="sidebar" ref={sidebarRef} style={{ width: '30%', padding: '20px', overflowY: 'auto' }}>
-          <h1>함께찾기</h1>
-          
-          {formMode === 'post' ? (
-            <PostForm 
-              onSubmit={handlePostSubmit} 
-              handleAddressSearch={handleAddressSearch} 
-              postLocation={postLocation} 
-              setPostLocation={setPostLocation} 
-            />
-          ) : (
-            <ReportForm 
-              selectedPostName={selectedPostName || ''}
-              onSubmit={handleReportSubmit}
-              handleAddressSearch={handleAddressSearch} 
-              onCancel={switchToPostMode}
-              reportLocation={reportLocation}
-              setReportLocation={setReportLocation}
-            />
-          )}
-
-          <hr style={{ margin: '20px 0' }} />
-
-          <h2>게시글 목록</h2>
-          <PostList posts={posts} apiUrl={API_URL} onReportClick={switchToReportMode} />
-
-        </div>
-
+    <div className="app-container">
+      <SlidingPanel activePanel={activePanel} setActivePanel={setActivePanel}>
+        {renderPanelContent()}
+      </SlidingPanel>
+      
+      <div className="map-container">
         <MapView 
           posts={posts}
           mapCenter={mapCenter}
           zoom={zoom}
           setZoom={setZoom}
-          formMode={formMode}
+          formMode={activePanel}
           postLocation={postLocation}
           reportLocation={reportLocation}
           selectedPostIdForReport={selectedPostIdForReport}
@@ -156,7 +152,7 @@ function App() {
           apiUrl={API_URL}
         />
       </div>
-    </>
+    </div>
   );
 }
 
