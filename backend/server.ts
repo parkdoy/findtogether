@@ -249,6 +249,38 @@ app.post('/api/posts/:postId/reports', upload.single('image'), async (req, res) 
     }
 });
 
+// Endpoint for reverse geocoding
+app.get('/api/reverse-geocode', async (req, res) => {
+  const { lat, lng } = req.query;
+
+  if (!lat || !lng) {
+    return res.status(400).json({ message: 'Latitude and longitude are required' });
+  }
+
+  try {
+    const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+      params: {
+        lat,
+        lon: lng,
+        format: 'json',
+        addressdetails: 1,
+      },
+      headers: {
+        'User-Agent': 'FindTogetherApp/1.0 (my@email.com)' // Use your actual app name and email
+      }
+    });
+
+    if (response.data) {
+      res.json(response.data);
+    } else {
+      res.status(404).json({ message: 'Address not found' });
+    }
+  } catch (error) {
+    console.error('Reverse geocoding error:', error);
+    res.status(500).json({ message: 'Failed to reverse geocode coordinates' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Backend server listening at http://localhost:${port}`);
 });
