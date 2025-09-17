@@ -77,6 +77,10 @@ const MapView = ({
 }: MapViewProps) => {
   const popupRef = useRef<L.Popup>(null);
 
+  const isValidLatLng = (lat: any, lng: any) => {
+    return typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng);
+  };
+
   return (
     <div className="map-container" style={{ flex: 1 }}>
       <MapContainer center={mapCenter} zoom={zoom} style={{ height: '100%', width: '100%' }}>
@@ -89,72 +93,82 @@ const MapView = ({
         <MapClickHandler setLocation={setPostLocation} setMapCenter={setMapCenter} formMode={formMode} setReportLocation={setReportLocation} />
         <LocationMarker location={postLocation} />
         <LocationMarker location={reportLocation} />
-        {posts.map(post => (
-          <div key={post.id}>
-            <Marker
-              key={`post-marker-${post.id}`}
-              position={post.lastSeenLocation}
-              eventHandlers={{
-                click: () => {
-                  setSelectedPostIdForReport(post.id);
-                  setMapCenter([post.lastSeenLocation.lat, post.lastSeenLocation.lng]);
-                  setZoom(16);
-                },
-              }}
-            >
-              <Popup ref={popupRef}>
-                {post.imageUrl && (
-                  <SignedImage
-                    gcsObjectName={post.imageUrl}
-                    alt={post.name}
-                    apiUrl={apiUrl}
-                    style={{ maxWidth: '150px', maxHeight: '150px', display: 'block', marginBottom: '5px' }}
-                  />
-                )}
-                <b>이름</b>: {post.name}<br />
-                <b>장소</b>: {post.geocodedAddress || '불러오는 중...'}<br />
-                <b>날짜</b>: {new Date(post.lastSeenTime).toLocaleString()}<br />
-                <b>설명</b>: {post.features}<br />
-                <button onClick={() => switchToReportMode(post.id)}>제보하기</button>
-              </Popup>
-            </Marker>
+        {posts.map(post => {
+          const postLatLng = post.lastSeenLocation;
+          const isPostLocationValid = isValidLatLng(postLatLng?.lat, postLatLng?.lng);
 
-            {selectedPostIdForReport === post.id && post.reports && post.reports.length > 0 && (
-              <>
-                {post.reports
-                  .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
-                  .map((report, index) => (
-                    <Marker key={index} position={{ lat: report.lat, lng: report.lng }}>
-                      <Popup>
-                        {report.imageUrl && (
-                          <SignedImage
-                            gcsObjectName={report.imageUrl}
-                            alt={report.description}
-                            apiUrl={apiUrl}
-                            style={{ maxWidth: '150px', maxHeight: '150px', display: 'block', marginBottom: '5px' }}
-                          />
-                        )}
-                        <b>제보 시간</b>: {new Date(report.time).toLocaleString()}<br />
-                        <b>제보 장소</b>: {report.geocodedAddress || '불러오는 중...'}<br />
-                        <b>설명</b>: {report.description}
-                      </Popup>
-                    </Marker>
-                  ))}
-                <Polyline
-                  key={`polyline-${post.id}`}
-                  positions={[
-                    post.lastSeenLocation,
-                    ...post.reports.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()).map(report => ({ lat: report.lat, lng: report.lng }))
-                  ]}
-                  color="blue"
-                />
-              </>
-            )}
-          </div>
-        ))}
+          return (
+            <div key={post.id}>
+              {isPostLocationValid && (
+                <Marker
+                  key={`post-marker-${post.id}`}
+                  position={postLatLng}
+                  eventHandlers={{
+                    click: () => {
+                      setSelectedPostIdForReport(post.id);
+                      setMapCenter([postLatLng.lat, postLatLng.lng]);
+                      setZoom(16);
+                    },
+                  }}
+                >
+                  <Popup ref={popupRef}>
+                    {post.imageUrl && (
+                      <SignedImage
+                        gcsObjectName={post.imageUrl}
+                        alt={post.name}
+                        apiUrl={apiUrl}
+                        style={{ maxWidth: '150px', maxHeight: '150px', display: 'block', marginBottom: '5px' }}
+                      />
+                    )}
+                    <b>이름</b>: {post.name}<br />
+                    <b>장소</b>: {post.geocodedAddress || '불러오는 중...'}<br />
+                    <b>날짜</b>: {new Date(post.lastSeenTime).toLocaleString()}<br />
+                    <b>설명</b>: {post.features}<br />
+                    <button onClick={() => switchToReportMode(post.id)}>제보하기</button>
+                  </Popup>
+                </Marker>
+              )}
+
+              {selectedPostIdForReport === post.id && post.reports && post.reports.length > 0 && (
+                <>
+                  {post.reports
+                    .filter(report => isValidLatLng(report.lat, report.lng)) // Filter out invalid reports
+                    .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
+                    .map((report, index) => (
+                      <Marker key={index} position={{ lat: report.lat, lng: report.lng }}>
+                        <Popup>
+                          {report.imageUrl && (
+                            <SignedImage
+                              gcsObjectName={report.imageUrl}
+                              alt={report.description}
+                              apiUrl={apiUrl}
+                              style={{ maxWidth: '150px', maxHeight: '150px', display: 'block', marginBottom: '5px' }}
+                            />
+                          )}
+                          <b>제보 시간</b>: {new Date(report.time).toLocaleString()}<br />
+                          <b>제보 장소</b>: {report.geocodedAddress || '불러오는 중...'}<br />
+                          <b>설명</b>: {report.description}
+                        </Popup>
+                      </Marker>
+                    ))}
+                  {isPostLocationValid && post.reports.some(report => isValidLatLng(report.lat, report.lng)) && (
+                    <Polyline
+                      key={`polyline-${post.id}`}
+                      positions={[
+                        postLatLng,
+                        ...post.reports.filter(report => isValidLatLng(report.lat, report.lng)).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()).map(report => ({ lat: report.lat, lng: report.lng }))
+                      ]}
+                      color="blue"
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          );
+        })}
       </MapContainer>
     </div>
   );
-}
+};
 
 export default MapView;

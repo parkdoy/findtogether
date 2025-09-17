@@ -256,7 +256,7 @@ app.post('/api/posts/:postId/reports', upload.single('image'), async (req, res) 
             time,
             description,
             imageUrl,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: new Date(),
         };
 
         await postRef.update({
