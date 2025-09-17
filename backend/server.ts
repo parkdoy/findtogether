@@ -156,7 +156,28 @@ app.post('/api/report', upload.single('image'), async (req, res) => {
 app.get('/api/posts', async (req, res) => {
     try {
         const postsSnapshot = await db.collection('posts').orderBy('createdAt', 'desc').get();
-        const posts = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const posts = postsSnapshot.docs.map(doc => {
+            const data = doc.data();
+            let lastSeenLocation = data.lastSeenLocation;
+            if (lastSeenLocation && typeof lastSeenLocation.latitude === 'number' && typeof lastSeenLocation.longitude === 'number') {
+                lastSeenLocation = { lat: lastSeenLocation.latitude, lng: lastSeenLocation.longitude };
+            } else {
+                // Default to a safe value if lastSeenLocation is missing or invalid
+                lastSeenLocation = { lat: 0, lng: 0 }; 
+            }
+
+            const reports = data.reports ? data.reports.map((report: any) => {
+                let reportLat = report.lat;
+                let reportLng = report.lng;
+                if (typeof reportLat !== 'number' || typeof reportLng !== 'number') {
+                    reportLat = 0; // Default to a safe value
+                    reportLng = 0; // Default to a safe value
+                }
+                return { ...report, lat: reportLat, lng: reportLng };
+            }) : [];
+
+            return { id: doc.id, ...data, lastSeenLocation, reports };
+        });
         res.json(posts);
     } catch (error) {
         console.error('Error fetching posts:', error);
