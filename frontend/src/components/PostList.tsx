@@ -1,5 +1,6 @@
 import type { Post } from '../types';
 import SignedImage from './SignedImage';
+import './PostList.css';
 
 interface PostListProps {
   posts: Post[];
