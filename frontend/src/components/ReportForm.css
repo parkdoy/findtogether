@@ -1,0 +1,110 @@
+.report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.report-form h2 {
+  margin-top: 0;
+  font-size: 1.4em;
+  color: #333;
+}
+
+.report-form label {
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #333;
+}
+
+.report-form input[type="text"],
+.report-form input[type="datetime-local"],
+.report-form input[type="file"],
+.report-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.report-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.report-form .address-search-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.report-form .address-search-container input {
+  flex: 1;
+}
+
+.report-form .address-search-container button {
+  padding: 10px 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 0.8em;
+}
+
+.report-form .location-info,
+.report-form .map-guidance {
+  font-size: 0.9em;
+  color: #555;
+  margin: -5px 0 5px 0;
+}
+
+.report-form .form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.report-form .form-buttons button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 1em;
+}
+
+.report-form .form-buttons button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+}
+
+.report-form .form-buttons button[type="button"] {
+  background-color: #6c757d;
+  color: white;
+}
+
+.report-form .form-buttons button:hover {
+  opacity: 0.9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .report-form {
+    padding: 15px;
+    gap: 12px;
+  }
+
+  .report-form input,
+  .report-form textarea,
+  .report-form button {
+    font-size: 14px;
+    padding: 10px;
+  }
+}
