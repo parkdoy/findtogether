@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Location } from '../types';
+import './PostForm.css';
 
 interface PostFormProps {
   onSubmit: (formData: FormData) => void;
@@ -48,7 +49,7 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, handleAddressSearch, post
   };
 
   return (
-    <form id="post-form" onSubmit={handleSubmit} className="form-container">
+    <form id="post-form" onSubmit={handleSubmit} className="post-form">
       <label htmlFor="image">이미지</label>
       <input type="file" id="image" name="image" accept="image/*" onChange={handleFileChange} required />
 
@@ -56,12 +57,12 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, handleAddressSearch, post
       <input type="text" id="name" name="name" placeholder="이름" value={name} onChange={e => setName(e.target.value)} required />
 
       <label>장소</label>
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="주소로 검색" style={{ flex: 1 }} />
+      <div className="address-search-container">
+        <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="주소로 검색" />
         <button type="button" onClick={() => handleAddressSearch(address, setPostLocation as (location: Location) => void)}>검색</button>
       </div>
-      <p style={{ margin: 0, fontSize: '0.9em', color: '#555' }}>또는 지도에서 마지막 목격 장소를 클릭하세요.</p>
-      {postLocation && <p style={{ margin: 0 }}>선택된 위치: {postLocation.lat.toFixed(4)}, {postLocation.lng.toFixed(4)}</p>}
+      <p className="map-guidance">또는 지도에서 마지막 목격 장소를 클릭하세요.</p>
+      {postLocation && <p className="location-info">선택된 위치: {postLocation.lat.toFixed(4)}, {postLocation.lng.toFixed(4)}</p>}
 
       <label htmlFor="lastSeenTime">시간</label>
       <input type="datetime-local" id="lastSeenTime" name="lastSeenTime" value={lastSeenTime} onChange={e => setLastSeenTime(e.target.value)} required />
@@ -69,7 +70,7 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, handleAddressSearch, post
       <label htmlFor="features">상황설명</label>
       <textarea id="features" name="features" placeholder="특징" value={features} onChange={e => setFeatures(e.target.value)} />
 
-      <button type="submit" style={{ marginTop: '10px' }}>등록</button>
+      <button type="submit">등록</button>
     </form>
   );
 }

@@ -63,3 +63,23 @@
 .report-item p {
   margin: 0;
 }
+
+/* Responsive styles for mobile devices */
+@media (max-width: 768px) {
+  .post-list {
+    padding: 10px;
+    gap: 15px;
+  }
+
+  .post-item {
+    padding: 10px;
+  }
+
+  .reports-list {
+    margin-top: 10px;
+  }
+
+  .report-item {
+    padding: 8px;
+  }
+}

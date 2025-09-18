@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Location } from '../types';
+import './ReportForm.css';
 
 interface ReportFormProps {
   selectedPostName: string;
@@ -41,18 +42,18 @@ const ReportForm: React.FC<ReportFormProps> = ({ selectedPostName, onSubmit, han
   };
 
   return (
-    <form id="report-form" onSubmit={handleSubmit} className="form-container">
-      <h2>'제보' 등록: {selectedPostName}</h2>
+    <form id="report-form" onSubmit={handleSubmit} className="report-form">
+      <h2>'{selectedPostName}' 제보 등록</h2>
       <label htmlFor="report-image">이미지 (선택)</label>
       <input id="report-image" type="file" accept="image/*" onChange={handleFileChange} />
 
       <label>장소</label>
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <input type="text" value={reportAddress} onChange={e => setReportAddress(e.target.value)} placeholder="주소로 검색" style={{ flex: 1 }} />
+      <div className="address-search-container">
+        <input type="text" value={reportAddress} onChange={e => setReportAddress(e.target.value)} placeholder="주소로 검색" />
         <button type="button" onClick={() => handleAddressSearch(reportAddress, setReportLocation as (location: Location) => void)}>검색</button>
       </div>
-      <p style={{ margin: 0, fontSize: '0.9em', color: '#555' }}>또는 지도에서 제보 장소를 클릭하세요.</p>
-      {reportLocation && <p>선택된 위치: {reportLocation.lat.toFixed(4)}, {reportLocation.lng.toFixed(4)}</p>}
+      <p className="map-guidance">또는 지도에서 제보 장소를 클릭하세요.</p>
+      {reportLocation && <p className="location-info">선택된 위치: {reportLocation.lat.toFixed(4)}, {reportLocation.lng.toFixed(4)}</p>}
 
       <label htmlFor="report-time">시간</label>
       <input id="report-time" type="datetime-local" value={reportTime} onChange={e => setReportTime(e.target.value)} required />
@@ -60,7 +61,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ selectedPostName, onSubmit, han
       <label htmlFor="report-description">상황설명</label>
       <textarea id="report-description" value={reportDescription} onChange={e => setReportDescription(e.target.value)} />
 
-      <div className="modal-buttons">
+      <div className="form-buttons">
         <button type="submit">제출</button>
         <button type="button" onClick={onCancel}>취소</button>
       </div>

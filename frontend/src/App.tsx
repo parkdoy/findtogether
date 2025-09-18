@@ -103,36 +103,33 @@ function App() {
 
   const selectedPostName = activePanel === 'report' && selectedPostId ? posts.find(p => p.id === selectedPostId)?.name : '';
 
-  const renderPanelContent = () => {
-    switch (activePanel) {
-      case 'post':
-        return <PostForm 
-          onSubmit={handlePostSubmit} 
-          handleAddressSearch={handleAddressSearch} 
-          postLocation={postLocation} 
-          setPostLocation={setPostLocation} 
-        />;
-      case 'report':
-        return <ReportForm 
-          selectedPostName={selectedPostName || ''}
-          onSubmit={handleReportSubmit}
-          handleAddressSearch={handleAddressSearch} 
-          onCancel={() => setActivePanel('list')} // Go back to list
-          reportLocation={reportLocation}
-          setReportLocation={setReportLocation}
-        />;
-      case 'list':
-        return <PostList posts={posts} apiUrl={API_URL} onReportClick={switchToReportMode} />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="app-container">
-      <SlidingPanel activePanel={activePanel} setActivePanel={setActivePanel}>
-        {renderPanelContent()}
-      </SlidingPanel>
+      <SlidingPanel 
+        activePanel={activePanel} 
+        setActivePanel={setActivePanel}
+        postFormComponent={
+          <PostForm 
+            onSubmit={handlePostSubmit} 
+            handleAddressSearch={handleAddressSearch} 
+            postLocation={postLocation} 
+            setPostLocation={setPostLocation} 
+          />
+        }
+        reportFormComponent={
+          <ReportForm 
+            selectedPostName={selectedPostName || ''}
+            onSubmit={handleReportSubmit}
+            handleAddressSearch={handleAddressSearch} 
+            onCancel={() => setActivePanel('list')} // Go back to list
+            reportLocation={reportLocation}
+            setReportLocation={setReportLocation}
+          />
+        }
+        postListComponent={
+          <PostList posts={posts} apiUrl={API_URL} onReportClick={switchToReportMode} />
+        }
+      />
       
       <div className="map-container">
         <MapView 
