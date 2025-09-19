@@ -4,14 +4,18 @@ import './PostList.css';
 
 interface PostListProps {
   posts: Post[];
+  isLoading: boolean; // Add isLoading prop
   apiUrl: string;
   onReportClick: (postId: string) => void;
 }
 
-const PostList = ({ posts, apiUrl, onReportClick }: PostListProps) => {
+const PostList = ({ posts, isLoading, apiUrl, onReportClick }: PostListProps) => {
+  // Conditionally apply the 'loading' class
+  const containerClassName = `post-list ${isLoading ? 'loading' : ''}`;
+
   return (
-    <div className="post-list">
-      {posts.map(post => (
+    <div className={containerClassName}>
+      {!isLoading && posts.map(post => (
         <div key={post.id} className="post-item">
           <h3>{post.name}</h3>
           <p>특징: {post.features}</p>
