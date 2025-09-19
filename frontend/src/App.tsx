@@ -26,16 +26,22 @@ function App() {
   const [reportLocation, setReportLocation] = useState<Location | null>(null);
 
   const [activePanel, setActivePanel] = useState<PanelType | null>('list');
+  const [isLoadingPosts, setIsLoadingPosts] = useState<boolean>(true); // New loading state
 
   useEffect(() => {
+    setIsLoadingPosts(true); // Set loading to true before fetch
     fetch(`${API_URL}/api/posts`)
       .then(res => res.json())
       .then(initialPosts => {
         updateGeocodedAddresses(initialPosts).then(geocodedPosts => {
           setPosts(geocodedPosts);
+          setIsLoadingPosts(false); // Set loading to false after posts are set
         });
       })
-      .catch(err => console.error("Failed to fetch posts:", err));
+      .catch(err => {
+        console.error("Failed to fetch posts:", err);
+        setIsLoadingPosts(false); // Set loading to false even if there's an error
+      });
   }, []);
 
   const handleAddressSearch = async (addressString: string, locationSetter: (location: Location) => void) => {
@@ -127,7 +133,7 @@ function App() {
           />
         }
         postListComponent={
-          <PostList posts={posts} apiUrl={API_URL} onReportClick={switchToReportMode} />
+          <PostList posts={posts} isLoading={isLoadingPosts} apiUrl={API_URL} onReportClick={switchToReportMode} />
         }
       />
       
