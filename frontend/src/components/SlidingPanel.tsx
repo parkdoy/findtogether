@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import './SlidingPanel.css';
+import useWindowSize from '../utils/useWindowSize'; // Import the hook
 
 export type PanelType = 'post' | 'report' | 'list';
 
@@ -19,6 +20,8 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
   setActivePanel
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const { width } = useWindowSize();
+  const isMobile = width <= 768;
 
   useEffect(() => {
     if (wrapperRef.current) {
@@ -29,7 +32,6 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
         scrollIndex = 2;
       }
       
-      // translateX value is based on the index of the active panel.
       wrapperRef.current.style.transform = `translateX(-${scrollIndex * (100 / 3)}%)`;
     }
   }, [activePanel]);
@@ -42,29 +44,39 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
     setActivePanel(null);
   }
 
+  const tabButtons = (
+    <>
+      <button 
+        className={`tab-button ${activePanel === 'post' ? 'active' : ''}`}
+        onClick={() => handleTabClick('post')}>
+        등록
+      </button>
+      <button 
+        className={`tab-button ${activePanel === 'report' ? 'active' : ''}`}
+        onClick={() => handleTabClick('report')}>
+        제보
+      </button>
+      <button 
+        className={`tab-button ${activePanel === 'list' ? 'active' : ''}`}
+        onClick={() => handleTabClick('list')}>
+        목록
+      </button>
+    </>
+  );
+
   return (
     <div className="sliding-panel-container">
-      <div className="main-sidebar">
-        <b>함께찾기</b>
-        <button 
-          className={`tab-button ${activePanel === 'post' ? 'active' : ''}`}
-          onClick={() => handleTabClick('post')}>
-          등록
-        </button>
-        <button 
-          className={`tab-button ${activePanel === 'report' ? 'active' : ''}`}
-          onClick={() => handleTabClick('report')}>
-          제보
-        </button>
-        <button 
-          className={`tab-button ${activePanel === 'list' ? 'active' : ''}`}
-          onClick={() => handleTabClick('list')}>
-          목록
-        </button>
-      </div>
+      {!isMobile && (
+        <div className="main-sidebar">
+          <b><img src="/public/handstogether.svg" alt="Icon" /> 함께찾기</b>
+          {tabButtons}
+        </div>
+      )}
+
       <div className={`expanding-panel ${activePanel ? 'open' : ''}`}>
         <div className="panel-header">
-          <b>함께찾기</b>
+          {isMobile && <div className="mobile-tabs">{tabButtons}</div>}
+          <b><img src="/public/handstogether.svg" alt="Icon" className='panel-logo'/>함께찾기</b>
           <button onClick={closePanel} className="close-panel-button" aria-label="Close panel">
             &times;
           </button>
