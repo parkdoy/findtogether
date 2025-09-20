@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import './SlidingPanel.css';
 import useWindowSize from '../utils/useWindowSize'; // Import the hook
+import logoImg from '/handstogether.svg';
 
 export type PanelType = 'post' | 'report' | 'list';
 
@@ -68,7 +69,7 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
     <div className="sliding-panel-container">
       {!isMobile && (
         <div className="main-sidebar">
-          <b><img src="/handstogether.svg" alt="Icon" /> 함께찾기</b>
+          <b><img src={logoImg} alt="logo"/> 함께찾기</b>
           {tabButtons}
         </div>
       )}
@@ -76,7 +77,7 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
       <div className={`expanding-panel ${activePanel ? 'open' : ''}`}>
         <div className="panel-header">
           {isMobile && <div className="mobile-tabs">{tabButtons}</div>}
-          <b><img src="/handstogether.svg" alt="Icon" className='panel-logo'/>함께찾기</b>
+          <b><img src={logoImg} alt="logo" className='panel-logo'/>함께찾기</b>
           <button onClick={closePanel} className="close-panel-button" aria-label="Close panel">
             &times;
           </button>

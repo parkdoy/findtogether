@@ -107,7 +107,7 @@
   padding: 0 5px;
 }
 
-  .panel-logo{
+  .panel-logo {
     vertical-align: middle; /* 이미지와 텍스트를 수직 중앙으로 정렬 */
     height: 1.2em;           /* 폰트 크기(1em)에 맞춰 이미지 높이 설정 */
   }
