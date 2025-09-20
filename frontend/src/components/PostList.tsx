@@ -11,11 +11,12 @@ interface PostListProps {
 }
 
 
-
 const PostList = ({ posts, isLoading, apiUrl, onReportClick }: PostListProps) => {
-  // Conditionally apply the 'loading' class
+
   const containerClassName = `post-list ${isLoading ? 'loading' : ''}`;
   // Use mock data in development, otherwise use props
+  
+
   
   const mockPosts: Post[] = [
     {
@@ -57,13 +58,15 @@ const PostList = ({ posts, isLoading, apiUrl, onReportClick }: PostListProps) =>
         <div key={post.id} className="post-item">
           <h3>{post.name}</h3>
           <p>특징: {post.features}</p>
-          <p>마지막 목격: {new Date(post.lastSeenTime).toLocaleString()}</p>
+          <p>마지막 목격 시간: {new Date(post.lastSeenTime).toLocaleString()}</p>
+          <p>마지막 목격 장소: {post.geocodedAddress || '불러오는 중...'}</p>
+          <b className="post-image"></b>
           {post.imageUrl && (
             <SignedImage
               gcsObjectName={post.imageUrl}
               alt={post.name}
               apiUrl={apiUrl}
-              style={{ maxWidth: '100px' }}
+              style={{ maxWidth: 'auto', height: 'auto' }}             
             />
           )}
           <button onClick={() => onReportClick(post.id)}>제보하기</button>
@@ -72,13 +75,16 @@ const PostList = ({ posts, isLoading, apiUrl, onReportClick }: PostListProps) =>
             {post.reports && post.reports.length > 0 ? (
               post.reports.map((report, index) => (
                 <div key={index} className="report-item">
-                  <p>{new Date(report.time).toLocaleString()}: {report.description}</p>
+                  <p>날짜 : {new Date(report.time).toLocaleString()}</p>
+                  <p>장소 : {report.geocodedAddress || '불러오는 중...'}</p>
+                  <p>설명 : {report.description}</p>
+                  <b className="report-image"></b>
                   {report.imageUrl && (
                      <SignedImage
                        gcsObjectName={report.imageUrl}
                        alt="Report image"
                        apiUrl={apiUrl}
-                       style={{ maxWidth: '80px' }}
+                       style={{ maxWidth: 'auto', height: 'auto' }}  
                      />
                   )}
                 </div>

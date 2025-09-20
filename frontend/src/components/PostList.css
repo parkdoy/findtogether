@@ -1,3 +1,4 @@
+
 .post-list {
   background-color: #f9f9f9;
   display: flex;
@@ -7,7 +8,11 @@
   height: 100%;
   width: 100%;
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
- 
+  cursor: grab;
+}
+
+.post-list.active {
+  cursor: grabbing;
 }
 
 .post-item {
@@ -20,7 +25,6 @@
   padding: 0px 10%; /* post-item의 좌우 마진과 동일하게 설정 */
   flex: 0 0 100%; /* 뷰포트 너비의 100%를 차지하도록 조정 */
   margin: 0 10px; /* 아이템 사이의 간격 추가 */
-  scroll-snap-align: center; /* 아이템의 중앙에 스냅 */
   }
 
 /* New style for when the list itself is loading */
@@ -92,6 +96,14 @@
   margin: 0;
   font-size: 0.9em;
   color: #555;
+}
+
+.post-image {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 
 /* Responsive styles for mobile devices */
