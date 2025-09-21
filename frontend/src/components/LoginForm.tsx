@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { GoogleLogin } from '@react-oauth/google';
+import type { CredentialResponse } from '@react-oauth/google';
 import './LoginForm.css';
 
 interface LoginFormProps {
@@ -29,6 +31,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
     console.log('Navigate to sign up');
   };
 
+  const handleGoogleLoginSuccess = (credentialResponse: CredentialResponse) => {
+    console.log('Google Login Success:', credentialResponse);
+    // In a real app, you would send the credential to your backend for verification
+    // and to create a session or JWT.
+    onLoginSuccess();
+  };
+
+  const handleGoogleLoginError = () => {
+    console.log('Google Login Failed');
+    setError('Google login failed. Please try again.');
+  };
+
   return (
     <div className="login-container">
       <form onSubmit={handleSubmit} className="login-form">
@@ -54,6 +68,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
         {error && <p className="error-message">{error}</p>}
         <button type="submit" className="login-button">로그인</button>
         <button type="button" className="signup-button" onClick={handleSignUpClick}>회원가입</button>
+
+        <div className="divider">OR</div>
+
+        <div className="google-login-container">
+            <GoogleLogin
+                onSuccess={handleGoogleLoginSuccess}
+                onError={handleGoogleLoginError}
+                useOneTap
+            />
+        </div>
       </form>
     </div>
   );
