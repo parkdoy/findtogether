@@ -12,9 +12,10 @@ export interface UserProfile {
 
 interface LoginFormProps {
   onLoginSuccess: (userProfile: UserProfile) => void;
+  onSwitchToRegister: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onSwitchToRegister }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,10 +31,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
     setError('');
     // For email/password, we don't have a full profile, so we pass a mock one
     onLoginSuccess({ name: email.split('@')[0], email });
-  };
-
-  const handleSignUpClick = () => {
-    console.log('Navigate to sign up');
   };
 
   const handleGoogleLoginSuccess = (credentialResponse: CredentialResponse) => {
@@ -75,7 +72,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
         </div>
         {error && <p className="error-message">{error}</p>}
         <button type="submit" className="login-button">로그인</button>
-        <button type="button" className="signup-button" onClick={handleSignUpClick}>회원가입</button>
+        <button type="button" className="signup-button" onClick={onSwitchToRegister}>회원가입</button>
 
         <div className="divider">OR</div>
 

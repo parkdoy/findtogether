@@ -10,7 +10,8 @@ import PostForm from './components/PostForm';
 import ReportForm from './components/ReportForm';
 import MapView from './components/MapView';
 import SlidingPanel, { type PanelType } from './components/SlidingPanel';
-import LoginForm, { type UserProfile } from './components/LoginForm';
+import AuthForm from './components/AuthForm';
+import { type UserProfile } from './components/LoginForm';
 
 setupLeafletIcon();
 
@@ -150,7 +151,7 @@ function App() {
               setPostLocation={setPostLocation} 
             />
           ) : (
-            <LoginForm onLoginSuccess={handleLoginSuccess} />
+            <AuthForm onLoginSuccess={handleLoginSuccess} />
           )
         }
         reportFormComponent={
@@ -164,7 +165,7 @@ function App() {
               setReportLocation={setReportLocation}
             />
           ) : (
-            <LoginForm onLoginSuccess={handleLoginSuccess} />
+            <AuthForm onLoginSuccess={handleLoginSuccess} />
           )
         }
         postListComponent={
