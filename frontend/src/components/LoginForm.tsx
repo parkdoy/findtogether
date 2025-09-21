@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import type { CredentialResponse } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 import './LoginForm.css';
 
+export interface UserProfile {
+  name: string;
+  email: string;
+  picture?: string;
+}
+
 interface LoginFormProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (userProfile: UserProfile) => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
@@ -14,28 +21,29 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Basic validation
     if (!email || !password) {
       setError('Email and password are required');
       return;
     }
-    // Simulate a successful login
-    // In a real app, you would call an authentication API here
+    // Simulate a successful login for email/password
     console.log('Logging in with', { email, password });
     setError('');
-    onLoginSuccess();
+    // For email/password, we don't have a full profile, so we pass a mock one
+    onLoginSuccess({ name: email.split('@')[0], email });
   };
 
   const handleSignUpClick = () => {
-    // In a real app, you would navigate to a sign-up page
     console.log('Navigate to sign up');
   };
 
   const handleGoogleLoginSuccess = (credentialResponse: CredentialResponse) => {
     console.log('Google Login Success:', credentialResponse);
-    // In a real app, you would send the credential to your backend for verification
-    // and to create a session or JWT.
-    onLoginSuccess();
+    if (credentialResponse.credential) {
+      const decoded: UserProfile = jwtDecode(credentialResponse.credential);
+      onLoginSuccess(decoded);
+    } else {
+      setError('Google login failed: No credential received.');
+    }
   };
 
   const handleGoogleLoginError = () => {

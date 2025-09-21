@@ -22,6 +22,7 @@ const PostList = ({ posts, isLoading, apiUrl, onReportClick }: PostListProps) =>
     {
       id: '1',
       name: '목업 데이터 1',
+      authorName: '테스트유저1',
       features: '흰색, 매우 활발함',
       lastSeenTime: new Date().toISOString(),
       imageUrl: '',
@@ -32,6 +33,7 @@ const PostList = ({ posts, isLoading, apiUrl, onReportClick }: PostListProps) =>
     {
       id: '2',
       name: '목업 데이터 2',
+      authorName: '테스트유저2',
       features: '검은색, 조용함',
       lastSeenTime: new Date().toISOString(),
       imageUrl: '',
@@ -42,6 +44,7 @@ const PostList = ({ posts, isLoading, apiUrl, onReportClick }: PostListProps) =>
     {
       id: '3',
       name: '목업 데이터 3',
+      authorName: '테스트유저3',
       features: '얼룩무늬, 경계심 많음',
       lastSeenTime: new Date().toISOString(),
       imageUrl: '',
@@ -57,6 +60,7 @@ const PostList = ({ posts, isLoading, apiUrl, onReportClick }: PostListProps) =>
       {!isLoading && postsToRender.map(post => (
         <div key={post.id} className="post-item">
           <h3>{post.name}</h3>
+          {post.authorName && <p><strong>작성자:</strong> {post.authorName}</p>}
           <p>특징: {post.features}</p>
           <p>마지막 목격 시간: {new Date(post.lastSeenTime).toLocaleString()}</p>
           <p>마지막 목격 장소: {post.geocodedAddress || '불러오는 중...'}</p>
@@ -74,6 +78,7 @@ const PostList = ({ posts, isLoading, apiUrl, onReportClick }: PostListProps) =>
             {post.reports && post.reports.length > 0 ? (
               post.reports.map((report, index) => (
                 <div key={index} className="report-item">
+                  {report.authorName && <p><strong>제보자:</strong> {report.authorName}</p>}
                   <p>날짜 : {new Date(report.time).toLocaleString()}</p>
                   <p>장소 : {report.geocodedAddress || '불러오는 중...'}</p>
                   <p>설명 : {report.description}</p>

@@ -10,7 +10,7 @@ import PostForm from './components/PostForm';
 import ReportForm from './components/ReportForm';
 import MapView from './components/MapView';
 import SlidingPanel, { type PanelType } from './components/SlidingPanel';
-import LoginForm from './components/LoginForm';
+import LoginForm, { type UserProfile } from './components/LoginForm';
 
 setupLeafletIcon();
 
@@ -18,6 +18,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.5665, 126.9780]);
   const [zoom, setZoom] = useState(13);
@@ -47,8 +48,9 @@ function App() {
       });
   }, []);
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (userProfile: UserProfile) => {
     setIsLoggedIn(true);
+    setCurrentUser(userProfile);
     setActivePanel(postLoginPanel);
   };
 
@@ -82,6 +84,10 @@ function App() {
   };
 
   const handlePostSubmit = (formData: FormData) => {
+    if (currentUser) {
+      formData.append('authorName', currentUser.name);
+    }
+
     fetch(`${API_URL}/api/posts`, {
       method: 'POST',
       body: formData,
@@ -96,7 +102,9 @@ function App() {
   };
 
   const handleReportSubmit = (formData: FormData) => {
-    if (!selectedPostId) return;
+    if (!selectedPostId || !currentUser) return;
+
+    formData.append('authorName', currentUser.name);
 
     fetch(`${API_URL}/api/posts/${selectedPostId}/reports`, {
       method: 'POST',
@@ -105,7 +113,7 @@ function App() {
     .then(res => res.json())
     .then(async (newReport: Report) => {
       const geocodedAddress = await geocodeLocation(newReport.lat, newReport.lng);
-      const newReportWithAddress = { ...newReport, geocodedAddress };
+      const newReportWithAddress = { ...newReport, geocodedAddress, authorName: currentUser.name };
 
       const updatedPosts = posts.map(p => {
         if (p.id === selectedPostId) {

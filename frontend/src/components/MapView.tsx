@@ -127,6 +127,7 @@ const MapView = ({
                       />
                     )}
                     <b>이름</b>: {post.name}<br />
+                    {post.authorName && <><b>작성자</b>: {post.authorName}<br /></>}
                     <b>장소</b>: {post.geocodedAddress || '불러오는 중...'}<br />
                     <b>날짜</b>: {new Date(post.lastSeenTime).toLocaleString()}<br />
                     <b>설명</b>: {post.features}<br />
@@ -151,6 +152,7 @@ const MapView = ({
                               style={{ maxWidth: '150px', maxHeight: '150px', display: 'block', marginBottom: '5px' }}
                             />
                           )}
+                          {report.authorName && <><b>제보자</b>: {report.authorName}<br /></>}
                           <b>제보 시간</b>: {new Date(report.time).toLocaleString()}<br />
                           <b>제보 장소</b>: {report.geocodedAddress || '불러오는 중...'}<br />
                           <b>설명</b>: {report.description}

@@ -14,6 +14,7 @@ export interface Report {
   imageUrl?: string;
   createdAt: Timestamp;
   geocodedAddress?: string;
+  authorName?: string;
 }
 
 export interface Post {
@@ -28,6 +29,7 @@ export interface Post {
   imageUrl?: string;
   createdAt: Timestamp;
   geocodedAddress?: string;
+  authorName?: string;
 }
 
 export interface Location {
