@@ -10,12 +10,14 @@ import PostForm from './components/PostForm';
 import ReportForm from './components/ReportForm';
 import MapView from './components/MapView';
 import SlidingPanel, { type PanelType } from './components/SlidingPanel';
+import LoginForm from './components/LoginForm';
 
 setupLeafletIcon();
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.5665, 126.9780]);
   const [zoom, setZoom] = useState(13);
@@ -26,23 +28,39 @@ function App() {
   const [reportLocation, setReportLocation] = useState<Location | null>(null);
 
   const [activePanel, setActivePanel] = useState<PanelType | null>('list');
-  const [isLoadingPosts, setIsLoadingPosts] = useState<boolean>(true); // New loading state
+  const [isLoadingPosts, setIsLoadingPosts] = useState<boolean>(true);
+  const [postLoginPanel, setPostLoginPanel] = useState<PanelType>('list');
 
   useEffect(() => {
-    setIsLoadingPosts(true); // Set loading to true before fetch
+    setIsLoadingPosts(true);
     fetch(`${API_URL}/api/posts`)
       .then(res => res.json())
       .then(initialPosts => {
         updateGeocodedAddresses(initialPosts).then(geocodedPosts => {
           setPosts(geocodedPosts);
-          setIsLoadingPosts(false); // Set loading to false after posts are set
+          setIsLoadingPosts(false);
         });
       })
       .catch(err => {
         console.error("Failed to fetch posts:", err);
-        setIsLoadingPosts(false); // Set loading to false even if there's an error
+        setIsLoadingPosts(false);
       });
   }, []);
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    setActivePanel(postLoginPanel);
+  };
+
+  const handleTabClick = (panel: PanelType | null) => {
+    const targetPanel = activePanel === panel ? null : panel;
+
+    if (targetPanel === 'post' || targetPanel === 'report') {
+      setPostLoginPanel(targetPanel);
+    }
+
+    setActivePanel(targetPanel);
+  };
 
   const handleAddressSearch = async (addressString: string, locationSetter: (location: Location) => void) => {
     if (!addressString) {
@@ -72,7 +90,7 @@ function App() {
     .then(async (newPost: Post) => {
       const [geocodedPost] = await updateGeocodedAddresses([newPost]);
       setPosts(prevPosts => [geocodedPost, ...prevPosts]);
-      setActivePanel('list'); // Switch to list view after posting
+      setActivePanel('list');
     })
     .catch(err => console.error("Failed to submit post:", err));
   };
@@ -97,13 +115,14 @@ function App() {
         return p;
       });
       setPosts(updatedPosts);
-      setActivePanel('list'); // Switch to list view after reporting
+      setActivePanel('list');
     })
     .catch(err => console.error("Failed to submit report:", err));
   };
 
   const switchToReportMode = (postId: string) => {
     setSelectedPostId(postId);
+    setPostLoginPanel('report');
     setActivePanel('report');
   };
 
@@ -113,24 +132,32 @@ function App() {
     <div className="app-container">
       <SlidingPanel 
         activePanel={activePanel} 
-        setActivePanel={setActivePanel}
+        setActivePanel={handleTabClick}
         postFormComponent={
-          <PostForm 
-            onSubmit={handlePostSubmit} 
-            handleAddressSearch={handleAddressSearch} 
-            postLocation={postLocation} 
-            setPostLocation={setPostLocation} 
-          />
+          isLoggedIn ? (
+            <PostForm 
+              onSubmit={handlePostSubmit} 
+              handleAddressSearch={handleAddressSearch} 
+              postLocation={postLocation} 
+              setPostLocation={setPostLocation} 
+            />
+          ) : (
+            <LoginForm onLoginSuccess={handleLoginSuccess} />
+          )
         }
         reportFormComponent={
-          <ReportForm 
-            selectedPostName={selectedPostName || ''}
-            onSubmit={handleReportSubmit}
-            handleAddressSearch={handleAddressSearch} 
-            onCancel={() => setActivePanel('list')} // Go back to list
-            reportLocation={reportLocation}
-            setReportLocation={setReportLocation}
-          />
+          isLoggedIn ? (
+            <ReportForm 
+              selectedPostName={selectedPostName || ''}
+              onSubmit={handleReportSubmit}
+              handleAddressSearch={handleAddressSearch} 
+              onCancel={() => setActivePanel('list')} // Go back to list
+              reportLocation={reportLocation}
+              setReportLocation={setReportLocation}
+            />
+          ) : (
+            <LoginForm onLoginSuccess={handleLoginSuccess} />
+          )
         }
         postListComponent={
           <PostList posts={posts} isLoading={isLoadingPosts} apiUrl={API_URL} onReportClick={switchToReportMode} />

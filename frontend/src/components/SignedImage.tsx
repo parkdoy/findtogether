@@ -4,10 +4,10 @@ interface SignedImageProps {
   gcsObjectName: string;
   alt: string;
   apiUrl: string; // API_URL passed from App.tsx
-  style?: React.CSSProperties;
+  className?: string;
 }
 
-const SignedImage: React.FC<SignedImageProps> = ({ gcsObjectName, alt, apiUrl, style }) => {
+const SignedImage: React.FC<SignedImageProps> = ({ gcsObjectName, alt, apiUrl, className }) => {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,7 +42,7 @@ const SignedImage: React.FC<SignedImageProps> = ({ gcsObjectName, alt, apiUrl, s
     return <div>Loading image...</div>; // Or a placeholder
   }
 
-  return <img src={signedUrl} alt={alt} style={style} />;
+  return <img src={signedUrl} alt={alt} className={className} />;
 };
 
 export default SignedImage;

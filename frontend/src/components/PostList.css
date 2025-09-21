@@ -106,6 +106,14 @@
   margin-bottom: 10px;
 }
 
+.report-image {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
 /* Responsive styles for mobile devices */
 @media (max-width: 768px) {
   .post-list {
