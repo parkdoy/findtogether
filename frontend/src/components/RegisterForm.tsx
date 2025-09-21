@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './RegisterForm.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
 }
@@ -12,17 +14,36 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
     if (!id || !password || !email || !username) {
       setError('All fields are required');
       return;
     }
-    // In a real app, you would call a registration API here
-    console.log('Registering with', { id, password, email, username });
-    setError('');
-    alert('Registration successful! Please log in.');
-    onSwitchToLogin(); // Switch back to login form after registration
+
+    try {
+      const response = await fetch(`${API_URL}/api/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, email, password, username }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to register');
+      }
+
+      alert('Registration successful! Please log in.');
+      onSwitchToLogin(); // Switch back to login form after registration
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      setError(err.message || 'An unknown error occurred.');
+    }
   };
 
   return (

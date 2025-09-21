@@ -51,6 +51,9 @@ yarn-debug.log*
 .DS_Store
 Thumbs.db
 
+# Service account keys
+backend/*.json
+
 # Created by https://www.toptal.com/developers/gitignore/api/react,expressionengine,node
 # Edit at https://www.toptal.com/developers/gitignore?templates=react,expressionengine,node
 

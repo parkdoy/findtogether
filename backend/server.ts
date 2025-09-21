@@ -11,9 +11,19 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // --- Firebase/Firestore Setup ---
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
-});
+const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+
+if (serviceAccountPath) {
+  const serviceAccount = require(path.resolve(serviceAccountPath));
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+} else {
+  admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
+  });
+}
+
 const db = admin.firestore();
 
 // --- Google Cloud Storage Setup ---
@@ -30,6 +40,36 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // --- API Endpoints ---
+
+// User registration endpoint
+app.post('/api/register', async (req, res) => {
+  const { email, password, username } = req.body;
+
+  if (!email || !password || !username) {
+    return res.status(400).json({ message: 'Email, password, and username are required.' });
+  }
+
+  try {
+    // Create user in Firebase Authentication
+    const userRecord = await admin.auth().createUser({
+      email: email,
+      password: password,
+      displayName: username,
+    });
+
+    // Save additional user info (like username) in Firestore
+    await db.collection('users').doc(userRecord.uid).set({
+      username: username,
+      email: email,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    res.status(201).json({ message: 'User created successfully', uid: userRecord.uid });
+  } catch (error: any) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: `Failed to create user: ${error.message}` });
+  }
+});
 
 // Geocoding endpoint
 app.get('/api/geocode', async (req, res) => {
@@ -186,7 +226,7 @@ app.get('/api/posts', async (req, res) => {
 });
 
 app.post('/api/posts', upload.single('image'), async (req, res) => {
-    const { name, features, lastSeenTime, lastSeenLocation } = req.body;
+    const { name, features, lastSeenTime, lastSeenLocation, authorName } = req.body;
     let imageUrl: string | undefined;
 
     if (req.file) {
@@ -213,6 +253,7 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
             imageUrl,
             reports: [],
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            authorName,
         };
         const docRef = await db.collection('posts').add(newPost);
         res.status(201).json({ id: docRef.id, ...newPost });
@@ -224,7 +265,7 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
 
 app.post('/api/posts/:postId/reports', upload.single('image'), async (req, res) => {
     const { postId } = req.params;
-    const { time, description, location } = req.body;
+    const { time, description, location, authorName } = req.body;
     let imageUrl: string | undefined;
 
     if (req.file) {
@@ -256,6 +297,7 @@ app.post('/api/posts/:postId/reports', upload.single('image'), async (req, res) 
             time,
             description,
             createdAt: new Date(),
+            authorName,
         };
 
         if (imageUrl) {

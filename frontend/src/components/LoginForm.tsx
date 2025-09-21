@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import type { CredentialResponse } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import { auth } from '../firebase'; // Import the auth instance
+import { signInWithEmailAndPassword } from 'firebase/auth'; // Import the function
 import './LoginForm.css';
 
 export interface UserProfile {
@@ -20,17 +22,37 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onSwitchToRegiste
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
     if (!email || !password) {
       setError('Email and password are required');
       return;
     }
-    // Simulate a successful login for email/password
-    console.log('Logging in with', { email, password });
-    setError('');
-    // For email/password, we don't have a full profile, so we pass a mock one
-    onLoginSuccess({ name: email.split('@')[0], email });
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Construct UserProfile from Firebase User object
+      const userProfile: UserProfile = {
+        name: user.displayName || user.email || 'Unknown User',
+        email: user.email || '',
+        picture: user.photoURL || undefined,
+      };
+      onLoginSuccess(userProfile);
+    } catch (err: any) {
+      console.error('Firebase login error:', err);
+      // Handle specific Firebase errors
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+        setError('Invalid email or password.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Invalid email format.');
+      } else {
+        setError(err.message || 'An unknown error occurred during login.');
+      }
+    }
   };
 
   const handleGoogleLoginSuccess = (credentialResponse: CredentialResponse) => {
