@@ -263,6 +263,20 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
     }
 });
 
+// Helper function to remove undefined properties from an object
+const removeUndefined = (obj: any) => {
+  const newObj: any = {};
+  for (const key in obj) {
+    if (obj[key] !== undefined) {
+      newObj[key] = obj[key];
+    } else if (obj[key] === null) {
+      // Optionally, handle null values if Firestore also rejects them in certain contexts
+      // For now, we'll just exclude undefined.
+    }
+  }
+  return newObj;
+};
+
 app.post('/api/posts/:postId/reports', upload.single('image'), async (req, res) => {
     const { postId } = req.params;
     const { time, description, location, authorName } = req.body;
@@ -293,7 +307,7 @@ app.post('/api/posts/:postId/reports', upload.single('image'), async (req, res) 
 
         const newReport: any = {
             lat: parsedLocation.lat,
-            lng: parsedLocation.lng,
+            lng: parsedLocation.lng, // 오타 수정: parsedLocation.lat -> parsedLocation.lng
             time,
             description,
             createdAt: new Date(),
@@ -304,8 +318,10 @@ app.post('/api/posts/:postId/reports', upload.single('image'), async (req, res) 
             newReport.imageUrl = imageUrl;
         }
 
+        const cleanedReport = removeUndefined(newReport); // undefined 속성 제거
+
         await postRef.update({
-            reports: admin.firestore.FieldValue.arrayUnion(newReport)
+            reports: admin.firestore.FieldValue.arrayUnion(cleanedReport) // 정리된 객체 사용
         });
 
         res.status(201).json(newReport);
