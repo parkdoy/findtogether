@@ -41,6 +41,7 @@ backend/build/
 # Environment files
 # front-end와 back-end의 환경 변수 파일
 frontend/.env
+frontend/.env.production
 backend/.env
 
 # Logs
