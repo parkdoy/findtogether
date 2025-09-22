@@ -8,7 +8,6 @@ interface RegisterFormProps {
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
-  const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -18,7 +17,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
     e.preventDefault();
     setError('');
 
-    if (!id || !password || !email || !username) {
+    if (!password || !email || !username) {
       setError('All fields are required');
       return;
     }
@@ -29,7 +28,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id, email, password, username }),
+        body: JSON.stringify({ email, password, username }),
       });
 
       const data = await response.json();
@@ -51,16 +50,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
       <form onSubmit={handleSubmit} className="register-form">
         <h2>회원가입</h2>
         <div className="form-group">
-          <label htmlFor="id">아이디</label>
-          <input type="text" id="id" value={id} onChange={(e) => setId(e.target.value)} />
+          <label htmlFor="email">이메일 주소</label>
+          <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div className="form-group">
           <label htmlFor="password">비밀번호</label>
           <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label htmlFor="email">이메일 주소</label>
-          <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div className="form-group">
           <label htmlFor="username">사용자 이름 (닉네임)</label>
