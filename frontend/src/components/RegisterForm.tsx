@@ -50,12 +50,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
       <form onSubmit={handleSubmit} className="register-form">
         <h2>회원가입</h2>
         <div className="form-group">
-          <label htmlFor="email">이메일 주소</label>
-          <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <label htmlFor="register-email">이메일 주소</label>
+          <input type="email" id="register-email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div className="form-group">
-          <label htmlFor="password">비밀번호</label>
-          <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <label htmlFor="register-password">비밀번호</label>
+          <input type="password" id="register-password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
         <div className="form-group">
           <label htmlFor="username">사용자 이름 (닉네임)</label>

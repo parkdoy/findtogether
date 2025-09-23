@@ -77,19 +77,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onSwitchToRegiste
       <form onSubmit={handleSubmit} className="login-form">
         <h2>로그인</h2>
         <div className="form-group">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="login-email">Email</label>
           <input
             type="email"
-            id="email"
+            id="login-email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="form-group">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="login-password">Password</label>
           <input
             type="password"
-            id="password"
+            id="login-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />

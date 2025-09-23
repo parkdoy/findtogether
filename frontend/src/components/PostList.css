@@ -19,7 +19,6 @@
   background-color: #fff;
   border-right: 1px solid #eee; /* Use border-right as a separator */
   scroll-snap-align: start; /* Snap to the start of each item */
-  overflow-y: auto; /* Allow vertical scrolling for long content */
   height: 100%;
   box-sizing: border-box; /* Ensure padding is included in the 100% width/height */
   padding: 0px 10%; /* post-item의 좌우 마진과 동일하게 설정 */
@@ -75,6 +74,8 @@
   margin-top: 15px;
   border-top: 1px solid #eee;
   padding-top: 10px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .reports-list h4 {
