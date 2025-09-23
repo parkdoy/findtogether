@@ -2,7 +2,7 @@ import type { Post } from '../types';
 import SignedImage from './SignedImage';
 import './PostList.css';
 import { Timestamp } from 'firebase/firestore';
-import { UserProfile } from './LoginForm';
+import { type UserProfile } from './LoginForm';
 
 interface PostListProps {
   posts: Post[];
