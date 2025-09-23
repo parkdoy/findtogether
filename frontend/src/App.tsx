@@ -12,6 +12,7 @@ import MapView from './components/MapView';
 import SlidingPanel, { type PanelType } from './components/SlidingPanel';
 import AuthForm from './components/AuthForm';
 import { type UserProfile } from './components/LoginForm';
+import { auth } from './firebase';
 
 setupLeafletIcon();
 
@@ -84,13 +85,18 @@ function App() {
     }
   };
 
-  const handlePostSubmit = (formData: FormData) => {
-    if (currentUser) {
-      formData.append('authorName', currentUser.name);
+  const handlePostSubmit = async (formData: FormData) => {
+    if (!currentUser || !auth.currentUser) {
+      alert('You must be logged in to post.');
+      return;
     }
+    const token = await auth.currentUser.getIdToken();
 
     fetch(`${API_URL}/api/posts`, {
       method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
       body: formData,
     })
     .then(res => res.json())
@@ -100,6 +106,33 @@ function App() {
       setActivePanel('list');
     })
     .catch(err => console.error("Failed to submit post:", err));
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!currentUser || !auth.currentUser) {
+      alert('You must be logged in to delete posts.');
+      return;
+    }
+    if (!window.confirm('Are you sure you want to delete this post?')) {
+      return;
+    }
+
+    const token = await auth.currentUser.getIdToken();
+
+    fetch(`${API_URL}/api/posts/${postId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+    .then(res => {
+      if (res.ok) {
+        setPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
+      } else {
+        res.json().then(err => alert(`Failed to delete post: ${err.message}`)).catch(() => alert('Failed to delete post.'));
+      }
+    })
+    .catch(err => console.error("Failed to delete post:", err));
   };
 
   const handleReportSubmit = (formData: FormData) => {
@@ -169,7 +202,14 @@ function App() {
           )
         }
         postListComponent={
-          <PostList posts={posts} isLoading={isLoadingPosts} apiUrl={API_URL} onReportClick={switchToReportMode} />
+          <PostList 
+            posts={posts} 
+            isLoading={isLoadingPosts} 
+            apiUrl={API_URL} 
+            onReportClick={switchToReportMode} 
+            currentUser={currentUser}
+            onDeletePost={handleDeletePost}
+          />
         }
       />
       

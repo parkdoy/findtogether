@@ -7,6 +7,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth'; // Import the functi
 import './LoginForm.css';
 
 export interface UserProfile {
+  uid: string;
   name: string;
   email: string;
   picture?: string;
@@ -38,6 +39,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onSwitchToRegiste
       // Construct UserProfile from Firebase User object
       const userProfile: UserProfile = {
         name: user.displayName || user.email || 'Unknown User',
+        uid: user.uid,
         email: user.email || '',
         picture: user.photoURL || undefined,
       };

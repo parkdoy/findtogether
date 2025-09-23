@@ -20,6 +20,7 @@ export interface Report {
 export interface Post {
   id: string; // Firestore document ID
   name: string;
+  authorId: string;
   features: string;
   lastSeenTime: string; // ISO 8601 date string
   // In Firestore, this would ideally be a GeoPoint.

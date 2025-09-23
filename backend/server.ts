@@ -38,6 +38,25 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// --- Authentication Middleware ---
+const authenticate = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const { authorization } = req.headers;
+
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Unauthorized: Missing or invalid token.' });
+  }
+
+  const idToken = authorization.split('Bearer ')[1];
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    (req as any).user = decodedToken; // Attach user info to request
+    next();
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    return res.status(403).json({ message: 'Forbidden: Invalid token.' });
+  }
+};
+
 
 // --- API Endpoints ---
 
@@ -225,8 +244,9 @@ app.get('/api/posts', async (req, res) => {
     }
 });
 
-app.post('/api/posts', upload.single('image'), async (req, res) => {
-    const { name, features, lastSeenTime, lastSeenLocation, authorName } = req.body;
+app.post('/api/posts', authenticate, upload.single('image'), async (req, res) => {
+    const { name, features, lastSeenTime, lastSeenLocation } = req.body;
+    const user = (req as any).user;
     let imageUrl: string | undefined;
 
     if (req.file) {
@@ -253,13 +273,39 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
             imageUrl,
             reports: [],
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            authorName,
+            authorId: user.uid,
+            authorName: user.name || user.email, // Use displayName or fallback to email
         };
         const docRef = await db.collection('posts').add(newPost);
         res.status(201).json({ id: docRef.id, ...newPost });
     } catch (error) {
         console.error('Error creating post:', error);
         res.status(500).json({ message: 'Failed to create post' });
+    }
+});
+
+app.delete('/api/posts/:postId', authenticate, async (req, res) => {
+    const { postId } = req.params;
+    const user = (req as any).user;
+
+    try {
+        const postRef = db.collection('posts').doc(postId);
+        const postDoc = await postRef.get();
+
+        if (!postDoc.exists) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        const postData = postDoc.data();
+        if (postData?.authorId !== user.uid) {
+            return res.status(403).json({ message: 'Forbidden: You are not the author of this post.' });
+        }
+
+        await postRef.delete();
+        res.status(200).json({ message: 'Post deleted successfully' });
+    } catch (error) {
+        console.error(`Error deleting post ${postId}:`, error);
+        res.status(500).json({ message: 'Failed to delete post' });
     }
 });
 
