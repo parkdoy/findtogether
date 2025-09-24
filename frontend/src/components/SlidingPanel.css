@@ -19,7 +19,7 @@
   align-items: center;
   border-right: 1px solid #dee2e6;
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .tab-button {
@@ -60,7 +60,11 @@
   box-shadow: 2px 0 5px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Hide overflow for the wrapper */
+  overflow-x: hidden; /* Hide overflow for the wrapper */
+}
+
+.expanding-panel::-webkit-scrollbar {
+  display: none;
 }
 
 .expanding-panel.open {
@@ -91,20 +95,18 @@
   transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.panel-view {
-  /* width: calc(100% / 3); */
-  flex-basis: 0; /* 기본 너비를 0으로 설정합니다. */
-  flex-grow: 1; /* 남은 공간을 똑같이 나누어 갖도록 합니다. */
-  flex-shrink: 0; /* 축소되지 않도록 설정합니다. */
-  overflow-y: auto;
-  padding: 5px;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
+        .panel-view {
+          /* width: calc(100% / 3); */
+          flex-basis: 0; /* 기본 너비를 0으로 설정합니다. */
+          flex-grow: 1; /* 남은 공간을 똑같이 나누어 갖도록 합니다. */
+          flex-shrink: 0; /* 축소되지 않도록 설정합니다. */
+          padding: 5px;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
 
-.panel-view h1, .panel-view h2 {
-  padding: 0 5px;
+        .panel-view h1, .panel-view h2 {  padding: 0 5px;
 }
 
   .panel-logo {

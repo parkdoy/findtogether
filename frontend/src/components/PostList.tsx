@@ -3,6 +3,7 @@ import SignedImage from './SignedImage';
 import './PostList.css';
 import { Timestamp } from 'firebase/firestore';
 import { type UserProfile } from './LoginForm';
+import { mockPosts } from './mock/mock';
 
 interface PostListProps {
   posts: Post[];
@@ -18,47 +19,7 @@ const PostList = ({ posts, isLoading, apiUrl, onReportClick, currentUser, onDele
 
   const containerClassName = `post-list ${isLoading ? 'loading' : ''}`;
   // Use mock data in development, otherwise use props
-  
 
-  
-  const mockPosts: Post[] = [
-    {
-      id: '1',
-      name: '목업 데이터 1',
-      authorId: 'mockuser1',
-      authorName: '테스트유저1',
-      features: '흰색, 매우 활발함',
-      lastSeenTime: new Date().toISOString(),
-      imageUrl: '',
-      reports: [],
-      lastSeenLocation: { lat: 65.123, lng: -23.456 },
-      createdAt: Timestamp.now(),
-    },
-    {
-      id: '2',
-      name: '목업 데이터 2',
-      authorId: 'mockuser2',
-      authorName: '테스트유저2',
-      features: '검은색, 조용함',
-      lastSeenTime: new Date().toISOString(),
-      imageUrl: '',
-      reports: [],
-      lastSeenLocation: { lat: 65.123, lng: -23.456 },
-      createdAt: Timestamp.now(),
-    },
-    {
-      id: '3',
-      name: '목업 데이터 3',
-      authorId: 'mockuser3',
-      authorName: '테스트유저3',
-      features: '얼룩무늬, 경계심 많음',
-      lastSeenTime: new Date().toISOString(),
-      imageUrl: '',
-      reports: [],
-      lastSeenLocation: { lat: 65.123, lng: -23.456 },
-      createdAt: Timestamp.now()
-    }
-  ];
   const postsToRender = import.meta.env.DEV ? mockPosts : posts;
 
   return (
