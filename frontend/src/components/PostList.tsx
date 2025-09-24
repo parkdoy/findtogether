@@ -1,7 +1,6 @@
 import type { Post } from '../types';
 import SignedImage from './SignedImage';
 import './PostList.css';
-import { Timestamp } from 'firebase/firestore';
 import { type UserProfile } from './LoginForm';
 import { mockPosts } from './mock/mock';
 
