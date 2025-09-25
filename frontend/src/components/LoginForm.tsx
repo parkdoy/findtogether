@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
-import type { CredentialResponse } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
 import { auth } from '../firebase'; // Import the auth instance
-import { signInWithEmailAndPassword } from 'firebase/auth'; // Import the function
+import { 
+  signInWithEmailAndPassword, 
+  GoogleAuthProvider, 
+  signInWithPopup 
+} from 'firebase/auth'; // Import the function
 import './LoginForm.css';
 
 export interface UserProfile {
@@ -36,7 +37,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onSwitchToRegiste
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // Construct UserProfile from Firebase User object
       const userProfile: UserProfile = {
         name: user.displayName || user.email || 'Unknown User',
         uid: user.uid,
@@ -46,8 +46,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onSwitchToRegiste
       onLoginSuccess(userProfile);
     } catch (err: any) {
       console.error('Firebase login error:', err);
-      // Handle specific Firebase errors
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
         setError('Invalid email or password.');
       } else if (err.code === 'auth/invalid-email') {
         setError('Invalid email format.');
@@ -57,19 +56,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onSwitchToRegiste
     }
   };
 
-  const handleGoogleLoginSuccess = (credentialResponse: CredentialResponse) => {
-    console.log('Google Login Success:', credentialResponse);
-    if (credentialResponse.credential) {
-      const decoded: UserProfile = jwtDecode(credentialResponse.credential);
-      onLoginSuccess(decoded);
-    } else {
-      setError('Google login failed: No credential received.');
+  const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const userProfile: UserProfile = {
+        name: user.displayName || user.email || 'Unknown User',
+        uid: user.uid,
+        email: user.email || '',
+        picture: user.photoURL || undefined,
+      };
+      onLoginSuccess(userProfile);
+    } catch (error: any) {
+      console.error("Google Sign-In Error", error);
+      setError(`Google Sign-In failed: ${error.message}`);
     }
-  };
-
-  const handleGoogleLoginError = () => {
-    console.log('Google Login Failed');
-    setError('Google login failed. Please try again.');
   };
 
   return (
@@ -83,6 +85,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onSwitchToRegiste
             id="login-email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="username"
           />
         </div>
         <div className="form-group">
@@ -92,6 +95,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onSwitchToRegiste
             id="login-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
           />
         </div>
         {error && <p className="error-message">{error}</p>}
@@ -100,12 +104,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onSwitchToRegiste
 
         <div className="divider">OR</div>
 
-        <div className="google-login-container">
-            <GoogleLogin
-                onSuccess={handleGoogleLoginSuccess}
-                onError={handleGoogleLoginError}
-            />
-        </div>
+        <button type="button" className="google-login-button" onClick={handleGoogleSignIn}>
+          Sign in with Google
+        </button>
       </form>
     </div>
   );
