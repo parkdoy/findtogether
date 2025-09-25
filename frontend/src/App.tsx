@@ -103,6 +103,10 @@ function App() {
     .then(async (newPost: Post) => {
       const [geocodedPost] = await updateGeocodedAddresses([newPost]);
       setPosts(prevPosts => [geocodedPost, ...prevPosts]);
+      // Center the map on the new post
+      if (geocodedPost.lastSeenLocation) {
+        setMapCenter([geocodedPost.lastSeenLocation.lat, geocodedPost.lastSeenLocation.lng]);
+      }
       setActivePanel('list');
     })
     .catch(err => console.error("Failed to submit post:", err));

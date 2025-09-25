@@ -105,7 +105,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onSwitchToRegiste
         <div className="divider">OR</div>
 
         <button type="button" className="google-login-button" onClick={handleGoogleSignIn}>
-          Sign in with Google
+          <img src="/Google_icon-Sep15.svg" alt="Google logo" />
+          <span>Google 계정으로 로그인</span>
         </button>
       </form>
     </div>
