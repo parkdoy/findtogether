@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import './SlidingPanel.css';
 import useWindowSize from '../utils/useWindowSize'; // Import the hook
 import logoImg from '/handstogether.svg';
+import FormSwapper from './FormSwapper'; // Import the new component
 
 export type PanelType = 'post' | 'report' | 'list';
 
@@ -20,22 +21,8 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
   activePanel,
   setActivePanel
 }) => {
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const { width } = useWindowSize();
   const isMobile = width <= 768;
-
-  useEffect(() => {
-    if (wrapperRef.current) {
-      let scrollIndex = 0;
-      if (activePanel === 'report') {
-        scrollIndex = 1;
-      } else if (activePanel === 'list') {
-        scrollIndex = 2;
-      }
-      
-      wrapperRef.current.style.transform = `translateX(-${scrollIndex * (100 / 3)}%)`;
-    }
-  }, [activePanel]);
 
   const handleTabClick = (panel: PanelType) => {
     setActivePanel(activePanel === panel ? null : panel);
@@ -82,16 +69,13 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
             &times;
           </button>
         </div>
-        <div className="panel-content-wrapper" ref={wrapperRef}>
-          <div className="panel-view" id="post-view">
-            {postFormComponent}
-          </div>
-          <div className="panel-view" id="report-view">
-            {reportFormComponent}
-          </div>
-          <div className="panel-view" id="list-view">
-            {postListComponent}
-          </div>
+        <div className="panel-view">
+          <FormSwapper 
+            activePanel={activePanel}
+            postFormComponent={postFormComponent}
+            reportFormComponent={reportFormComponent}
+            postListComponent={postListComponent}
+          />
         </div>
       </div>
     </div>

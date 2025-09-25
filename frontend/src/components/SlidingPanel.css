@@ -60,11 +60,6 @@
   box-shadow: 2px 0 5px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
-  overflow-x: hidden; /* Hide overflow for the wrapper */
-}
-
-.expanding-panel::-webkit-scrollbar {
-  display: none;
 }
 
 .expanding-panel.open {
@@ -76,7 +71,7 @@
   justify-content: flex-end;
   padding: 10px;
   border-bottom: 1px solid #eee;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .close-panel-button {
@@ -88,31 +83,21 @@
   padding: 0 5px;
 }
 
-.panel-content-wrapper {
-  display: flex;
-  flex-grow: 1;
-  width: 300%; /* 3 panels */
-  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+.panel-view {
+  flex-grow: 1; /* Allow this view to take up all available space */
+  overflow-y: auto; /* Add vertical scrollbar if content overflows */
+  padding: 10px;
+  min-height: 0; /* Important for flexbox to calculate scroll height correctly */
 }
 
-        .panel-view {
-          /* width: calc(100% / 3); */
-          flex-basis: 0; /* 기본 너비를 0으로 설정합니다. */
-          flex-grow: 1; /* 남은 공간을 똑같이 나누어 갖도록 합니다. */
-          flex-shrink: 0; /* 축소되지 않도록 설정합니다. */
-          padding: 5px;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-        }
-
-        .panel-view h1, .panel-view h2 {  padding: 0 5px;
+.panel-view h1, .panel-view h2 {  
+  padding: 0 5px;
 }
 
-  .panel-logo {
-    vertical-align: middle; /* 이미지와 텍스트를 수직 중앙으로 정렬 */
-    height: 1.2em;           /* 폰트 크기(1em)에 맞춰 이미지 높이 설정 */
-  }
+.panel-logo {
+  vertical-align: middle; /* 이미지와 텍스트를 수직 중앙으로 정렬 */
+  height: 1.2em;           /* 폰트 크기(1em)에 맞춰 이미지 높이 설정 */
+}
 
 /* Responsive styles for mobile devices */
 @media (max-width: 768px) {

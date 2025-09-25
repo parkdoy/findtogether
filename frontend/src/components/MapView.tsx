@@ -4,6 +4,7 @@ import L from 'leaflet';
 import type { Post, Location } from '../types';
 import SignedImage from './SignedImage';
 import { type PanelType } from './SlidingPanel'; // Import PanelType
+import { redIcon } from '../utils'; // Import the red icon
 
 const ChangeView = ({ center, zoom }: { center: [number, number], zoom: number }) => {
   const map = useMap();
@@ -105,6 +106,7 @@ const MapView = ({
                 <Marker
                   key={`post-marker-${post.id}`}
                   position={postLatLng}
+                  icon={redIcon} // Use the red icon for the main post
                   eventHandlers={{
                     click: () => {
                       if (selectedPostIdForReport === post.id) {
@@ -112,7 +114,6 @@ const MapView = ({
                       } else {
                         setSelectedPostIdForReport(post.id);
                         setMapCenter([postLatLng.lat, postLatLng.lng]);
-                        setZoom(16);
                       }
                     },
                   }}
