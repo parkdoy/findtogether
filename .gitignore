@@ -236,3 +236,7 @@ sketch
 
 # Service account keys
 backend/lofty-object-472213-v6-eba24723f01d.json
+
+
+# Firebase cache
+.firebase/
