@@ -172,7 +172,13 @@ function App() {
     setActivePanel('report');
   };
 
-  const selectedPostName = activePanel === 'report' && selectedPostId ? posts.find(p => p.id === selectedPostId)?.name : '';
+  const handlePostSelect = (post: Post) => {
+    if (post.lastSeenLocation) {
+      setMapCenter([post.lastSeenLocation.lat, post.lastSeenLocation.lng]);
+    }
+  };
+
+  const selectedPostForReportData = posts.find(p => p.id === selectedPostId);
 
   return (
     <div className="app-container">
@@ -194,7 +200,7 @@ function App() {
         reportFormComponent={
           isLoggedIn ? (
             <ReportForm 
-              selectedPostName={selectedPostName || ''}
+              selectedPostName={selectedPostForReportData?.name || ''}
               onSubmit={handleReportSubmit}
               handleAddressSearch={handleAddressSearch} 
               onCancel={() => setActivePanel('list')} // Go back to list
@@ -213,6 +219,7 @@ function App() {
             onReportClick={switchToReportMode} 
             currentUser={currentUser}
             onDeletePost={handleDeletePost}
+            onPostSelect={handlePostSelect}
           />
         }
       />

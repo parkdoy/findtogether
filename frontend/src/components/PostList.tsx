@@ -11,10 +11,11 @@ interface PostListProps {
   onReportClick: (postId: string) => void;
   currentUser: UserProfile | null;
   onDeletePost: (postId: string) => void;
+  onPostSelect: (post: Post) => void;
 }
 
 
-const PostList = ({ posts, isLoading, apiUrl, onReportClick, currentUser, onDeletePost }: PostListProps) => {
+const PostList = ({ posts, isLoading, apiUrl, onReportClick, currentUser, onDeletePost, onPostSelect }: PostListProps) => {
 
   const containerClassName = `post-list ${isLoading ? 'loading' : ''}`;
   // Use mock data in development, otherwise use props
@@ -24,7 +25,7 @@ const PostList = ({ posts, isLoading, apiUrl, onReportClick, currentUser, onDele
   return (
     <div className={containerClassName}>
       {!isLoading && postsToRender.map(post => (
-        <div key={post.id} className="post-item">
+        <div key={post.id} className="post-item" onClick={() => onPostSelect(post)}>
           <h3>{post.name}</h3>
           {post.authorName && <p><strong>작성자:</strong> {post.authorName}</p>}
           <p>특징: {post.features}</p>
