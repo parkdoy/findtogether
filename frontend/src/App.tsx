@@ -3,7 +3,8 @@ import 'leaflet/dist/leaflet.css';
 import './App.css';
 
 import Header from './components/Header';
-import MyPage from './components/MyPage'; // Import MyPage
+import MyPage from './components/MyPage';
+import ServiceIntro from './components/ServiceIntro'; // Import ServiceIntro
 import type { Post, Location, Report } from './types';
 import { setupLeafletIcon } from './utils';
 import { updateGeocodedAddresses, geocodeLocation } from './utils/geocoding';
@@ -84,6 +85,10 @@ function App() {
 
   const handleMyPageClick = () => {
     setActivePanel('my-page');
+  };
+
+  const handleServiceIntroClick = () => {
+    setActivePanel('service-intro');
   };
 
   const handleUpdateNickname = async (newNickname: string) => {
@@ -238,13 +243,15 @@ function App() {
         currentUser={currentUser}
         onLogout={handleLogout}
         onLoginClick={handleLoginClick}
-        onMyPageClick={handleMyPageClick} // Pass the new handler
+        onMyPageClick={handleMyPageClick}
+        onServiceIntroClick={handleServiceIntroClick} // Pass the new handler
       />
       <div className="main-content">
         <SlidingPanel 
           activePanel={activePanel} 
           setActivePanel={handleTabClick}
-          myPageComponent={ // Add the MyPage component
+          serviceIntroComponent={<ServiceIntro />} // Add the ServiceIntro component
+          myPageComponent={
             currentUser ? (
               <MyPage 
                 currentUser={currentUser}

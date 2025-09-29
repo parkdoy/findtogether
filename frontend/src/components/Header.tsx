@@ -7,10 +7,11 @@ interface HeaderProps {
   currentUser: UserProfile | null;
   onLogout: () => void;
   onLoginClick: () => void;
-  onMyPageClick: () => void; // Add new prop
+  onMyPageClick: () => void;
+  onServiceIntroClick: () => void; // Add new prop
 }
 
-const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onLoginClick, onMyPageClick }) => {
+const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onLoginClick, onMyPageClick, onServiceIntroClick }) => {
   return (
     <header className="app-header">
       <div className="header-left">
@@ -18,7 +19,7 @@ const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onLoginClick, on
         <span className="header-title">Find Together</span>
       </div>
       <nav className="header-nav">
-        <a href="#" className="nav-link">서비스 소개</a>
+        <button onClick={onServiceIntroClick} className="nav-button">서비스 소개</button>
       </nav>
       <div className="header-right">
         {currentUser ? (

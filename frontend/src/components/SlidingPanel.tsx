@@ -1,16 +1,17 @@
 import React from 'react';
 import './SlidingPanel.css';
-import useWindowSize from '../utils/useWindowSize'; // Import the hook
+import useWindowSize from '../utils/useWindowSize';
 
-import FormSwapper from './FormSwapper'; // Import the new component
+import FormSwapper from './FormSwapper';
 
-export type PanelType = 'post' | 'report' | 'list' | 'my-page';
+export type PanelType = 'post' | 'report' | 'list' | 'my-page' | 'service-intro';
 
 interface SlidingPanelProps {
   postFormComponent: React.ReactNode;
   reportFormComponent: React.ReactNode;
   postListComponent: React.ReactNode;
-  myPageComponent: React.ReactNode; // Add prop for MyPageComponent
+  myPageComponent: React.ReactNode;
+  serviceIntroComponent: React.ReactNode; // Add prop for ServiceIntro
   activePanel: PanelType | null;
   setActivePanel: (panel: PanelType | null) => void;
 }
@@ -19,7 +20,8 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
   postFormComponent,
   reportFormComponent,
   postListComponent,
-  myPageComponent, // Destructure new prop
+  myPageComponent,
+  serviceIntroComponent, // Destructure new prop
   activePanel,
   setActivePanel
 }) => {
@@ -58,7 +60,6 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
     <div className="sliding-panel-container">
       {!isMobile && (
         <div className="main-sidebar">
-          
           {tabButtons}
         </div>
       )}
@@ -66,7 +67,6 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
       <div className={`expanding-panel ${activePanel ? 'open' : ''}`}>
         <div className="panel-header">
           {isMobile && <div className="mobile-tabs">{tabButtons}</div>}
-          
           <button onClick={closePanel} className="close-panel-button" aria-label="Close panel">
             &times;
           </button>
@@ -77,7 +77,8 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({
             postFormComponent={postFormComponent}
             reportFormComponent={reportFormComponent}
             postListComponent={postListComponent}
-            myPageComponent={myPageComponent} // Pass down to FormSwapper
+            myPageComponent={myPageComponent}
+            serviceIntroComponent={serviceIntroComponent} // Pass down to FormSwapper
           />
         </div>
       </div>
