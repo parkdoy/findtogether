@@ -1,37 +1,39 @@
-
+/* post-list is now a container for the Swiper component.
+   It should fill the available space. */
 .post-list {
   background-color: #f9f9f9;
-  display: flex;
-  flex-direction: row; /* Changed to row for horizontal layout */
-  
-  scroll-snap-type: x mandatory; /* Enable horizontal scroll snapping */
   flex-grow: 1;
   min-height: 0;
   width: 100%;
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-  cursor: grab;
+  /* Swiper will handle the layout, so flex/scroll properties are removed. */
 }
 
-.post-list.active {
-  cursor: grabbing;
+/* Ensure Swiper and its wrapper occupy the full height of the container. */
+.swiper, .swiper-wrapper, .swiper-slide {
+  height: 100%;
 }
 
+/* The post-item is the content of a slide.
+   It should allow for internal scrolling if content overflows. */
 .post-item {
   background-color: #fff;
-  border-right: 1px solid #eee; /* Use border-right as a separator */
-  scroll-snap-align: start; /* Snap to the start of each item */
   height: 100%;
-  box-sizing: border-box; /* Ensure padding is included in the 100% width/height */
-  padding: 0px 10%; /* post-item의 좌우 마진과 동일하게 설정 */
-  flex: 0 0 100%; /* 뷰포트 너비의 100%를 차지하도록 조정 */
-  margin: 0 10px; /* 아이템 사이의 간격 추가 */
+  box-sizing: border-box;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow-y: auto; /* Allow vertical scrolling within a single post */
   min-height: 0;
-  }
+}
 
-/* New style for when the list itself is loading */
+/* Placeholder for non-rendered slides to maintain layout integrity. */
+.post-item-placeholder {
+  background-color: #fff; /* Match the item background */
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Style for when the list itself is loading */
 .post-list.loading {
   display: flex;
   justify-content: center;
@@ -40,7 +42,7 @@
 
 .post-list.loading::after {
   content: '';
-  width: 50px; /* Adjust size as needed */
+  width: 50px;
   height: 50px;
   background-image: url('/free-animated-icon-loading-17905699.gif');
   background-size: contain;
@@ -75,16 +77,13 @@
   background-color: #0056b3;
 }
 
-        .reports-list {
-          margin-top: 15px;
-          border-top: 1px solid #eee;
-          padding-top: 10px;
-          min-height: 0; /* Prevent flexbox overflow issues */
-          scrollbar-width: none; /* Firefox */
-          flex-direction: column-reverse;
-          
-        }
-
+.reports-list {
+  margin-top: 15px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  min-height: 0;
+  scrollbar-width: none; /* Firefox */
+}
 
 .reports-list h4 {
   margin-top: 0;
@@ -107,15 +106,7 @@
   color: #555;
 }
 
-.post-image {
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.report-image {
+.post-image, .report-image {
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
@@ -125,28 +116,12 @@
 
 /* Responsive styles for mobile devices */
 @media (max-width: 768px) {
-  .post-list {
-     padding: 15px 0;
-     gap: 12px; /* Add some vertical padding */
-  }
-
   .post-item {
-    padding: 5px 10%; /* post-item의 좌우 마진과 동일하게 설정 */
-    flex: 0 0 100%; /* 뷰포트 너비의 100%를 차지하도록 조정 */
-    margin: 0 10px; /* 아이템 사이의 간격 추가 */
-    scroll-snap-align: center; /* 아이템의 중앙에 스냅 */
+    padding: 15px;
   }
 
   .post-item button {
     font-size: 14px;
     padding: 10px;
-  }
-
-  .reports-list {
-    margin-top: 10px;
-  }
-
-  .report-item {
-    padding: 8px;
   }
 }
