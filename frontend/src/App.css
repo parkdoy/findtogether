@@ -20,15 +20,23 @@ body {
 
 .app-container {
   display: flex;
+  flex-direction: column; /* Arrange children vertically: Header on top, main-content below */
   height: 100vh;
   width: 100%;
   background-color: #fff; /* Set a background for the app */
   color: #212529; /* Default text color */
 }
 
+.main-content {
+  display: flex;
+  flex-direction: row; /* Keep panel and map side-by-side */
+  flex-grow: 1; /* Fill remaining vertical space */
+  min-height: 0; /* Prevent flexbox overflow issues */
+}
+
 .map-container {
   flex-grow: 1;
-  height: 100vh;
+  height: 100%; /* Take full height of parent (.main-content) */
   position: relative; /* Important for leaflet controls */
 }
 

@@ -1,0 +1,59 @@
+/* MyPage.css */
+.my-page-container {
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.my-page-container h2 {
+  margin-top: 0;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.nickname-section, .my-posts-section {
+  margin-top: 30px;
+}
+
+.nickname-form {
+  display: flex;
+  gap: 10px;
+}
+
+.nickname-form input {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.nickname-form button {
+  padding: 8px 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.my-posts-list {
+  margin-top: 15px;
+}
+
+.my-post-item {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.my-post-item h4 {
+  margin: 0 0 5px 0;
+}
+
+.my-post-item p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #555;
+}

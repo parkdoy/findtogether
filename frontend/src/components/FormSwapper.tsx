@@ -6,13 +6,15 @@ interface FormSwapperProps {
   postFormComponent: React.ReactNode;
   reportFormComponent: React.ReactNode;
   postListComponent: React.ReactNode;
+  myPageComponent: React.ReactNode;
 }
 
 const FormSwapper: React.FC<FormSwapperProps> = ({ 
   activePanel,
   postFormComponent,
   reportFormComponent,
-  postListComponent 
+  postListComponent,
+  myPageComponent
 }) => {
   switch (activePanel) {
     case 'post':
@@ -21,8 +23,10 @@ const FormSwapper: React.FC<FormSwapperProps> = ({
       return <>{reportFormComponent}</>;
     case 'list':
       return <>{postListComponent}</>;
+    case 'my-page':
+      return <>{myPageComponent}</>;
     default:
-      return null; // Or some default view
+      return <>{postListComponent}</>; // Default to the list view
   }
 };
 

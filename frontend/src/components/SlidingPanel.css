@@ -103,7 +103,7 @@
 @media (max-width: 768px) {
   .expanding-panel {
     width: 100vw;
-    height: 93%; /* Do not cover the entire screen */
+    height: 86%; /* Do not cover the entire screen */
     left: 0;
     top: 0;
     transform: translateY(100%);

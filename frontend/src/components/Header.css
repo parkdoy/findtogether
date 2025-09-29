@@ -1,0 +1,97 @@
+/* Styles for the Header component */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.header-title {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+}
+
+.header-nav .nav-link {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #555;
+  font-weight: 500;
+}
+
+.header-nav .nav-link:hover {
+  color: #007bff;
+}
+
+.header-right .user-info {
+  display: flex;
+  align-items: center;
+}
+
+.header-right .user-info span {
+  margin-right: 15px;
+}
+
+.header-right button {
+  padding: 8px 12px;
+  border: 1px solid #007bff;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.header-right .logout-button {
+  background-color: transparent;
+  color: #007bff;
+}
+
+.header-right .logout-button:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* --- Responsive Styles --- */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 8px 12px;
+  }
+
+  /* Hide text title on mobile, keep logo */
+  .header-title {
+    display: none;
+  }
+
+  /* Hide nav link on mobile. Could be moved to a hamburger menu later. */
+  .header-nav {
+    display: none;
+  }
+
+  /* Hide the welcome message on mobile, just show the button */
+  .header-right .user-info span {
+    display: none;
+  }
+
+  .header-right button {
+    padding: 6px 10px;
+    font-size: 0.9em;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-logo {
+    height: 35px;
+  }
+}

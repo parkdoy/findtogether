@@ -90,6 +90,46 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
+// Nickname update endpoint
+app.patch('/api/user/nickname', authenticate, async (req, res) => {
+  const { nickname } = req.body;
+  const user = (req as any).user;
+
+  if (!nickname) {
+    return res.status(400).json({ message: 'Nickname is required.' });
+  }
+
+  try {
+    // 1. Update Firebase Authentication displayName
+    await admin.auth().updateUser(user.uid, {
+      displayName: nickname,
+    });
+
+    // 2. Update username in Firestore 'users' collection
+    const userRef = db.collection('users').doc(user.uid);
+    await userRef.update({
+      username: nickname,
+    });
+
+    // 3. Fetch the updated user profile to return to the client
+    const updatedUserDoc = await userRef.get();
+    const updatedUserData = updatedUserDoc.data();
+
+    // Construct a profile object similar to what the client expects
+    const userProfile = {
+      uid: user.uid,
+      name: updatedUserData?.username, // Use the new username
+      email: user.email,
+      picture: user.picture,
+    };
+
+    res.status(200).json(userProfile);
+  } catch (error) {
+    console.error('Error updating nickname:', error);
+    res.status(500).json({ message: 'Failed to update nickname.' });
+  }
+});
+
 // Geocoding endpoint
 app.get('/api/geocode', async (req, res) => {
   const { address } = req.query;

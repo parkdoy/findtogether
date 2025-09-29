@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
 
+import Header from './components/Header';
+import MyPage from './components/MyPage'; // Import MyPage
 import type { Post, Location, Report } from './types';
 import { setupLeafletIcon } from './utils';
 import { updateGeocodedAddresses, geocodeLocation } from './utils/geocoding';
@@ -56,6 +58,16 @@ function App() {
     setActivePanel(postLoginPanel);
   };
 
+  const handleLogout = () => {
+    auth.signOut().then(() => {
+      setIsLoggedIn(false);
+      setCurrentUser(null);
+      setActivePanel('list');
+    }).catch((error) => {
+      console.error("Logout failed:", error);
+    });
+  };
+
   const handleTabClick = (panel: PanelType | null) => {
     const targetPanel = activePanel === panel ? null : panel;
 
@@ -64,6 +76,47 @@ function App() {
     }
 
     setActivePanel(targetPanel);
+  };
+
+  const handleLoginClick = () => {
+    handleTabClick('post');
+  };
+
+  const handleMyPageClick = () => {
+    setActivePanel('my-page');
+  };
+
+  const handleUpdateNickname = async (newNickname: string) => {
+    if (!currentUser || !auth.currentUser) {
+      alert('You must be logged in to update your nickname.');
+      return;
+    }
+    const token = await auth.currentUser.getIdToken();
+    try {
+      const response = await fetch(`${API_URL}/api/user/nickname`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ nickname: newNickname }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update nickname');
+      }
+
+      const updatedUserProfile = await response.json();
+
+      // Update the local state with the new profile from the server
+      setCurrentUser(updatedUserProfile);
+
+      alert('닉네임이 성공적으로 변경되었습니다!');
+    } catch (err) {
+      console.error('Failed to update nickname:', err);
+      alert(err instanceof Error ? err.message : '닉네임 변경 중 오류가 발생했습니다.');
+    }
   };
 
   const handleAddressSearch = async (addressString: string, locationSetter: (location: Location) => void) => {
@@ -103,7 +156,6 @@ function App() {
     .then(async (newPost: Post) => {
       const [geocodedPost] = await updateGeocodedAddresses([newPost]);
       setPosts(prevPosts => [geocodedPost, ...prevPosts]);
-      // Center the map on the new post
       if (geocodedPost.lastSeenLocation) {
         setMapCenter([geocodedPost.lastSeenLocation.lat, geocodedPost.lastSeenLocation.lng]);
       }
@@ -182,65 +234,84 @@ function App() {
 
   return (
     <div className="app-container">
-      <SlidingPanel 
-        activePanel={activePanel} 
-        setActivePanel={handleTabClick}
-        postFormComponent={
-          isLoggedIn ? (
-            <PostForm 
-              onSubmit={handlePostSubmit} 
-              handleAddressSearch={handleAddressSearch} 
-              postLocation={postLocation} 
-              setPostLocation={setPostLocation} 
-            />
-          ) : (
-            <AuthForm onLoginSuccess={handleLoginSuccess} />
-          )
-        }
-        reportFormComponent={
-          isLoggedIn ? (
-            <ReportForm 
-              selectedPostName={selectedPostForReportData?.name || ''}
-              onSubmit={handleReportSubmit}
-              handleAddressSearch={handleAddressSearch} 
-              onCancel={() => setActivePanel('list')} // Go back to list
-              reportLocation={reportLocation}
-              setReportLocation={setReportLocation}
-            />
-          ) : (
-            <AuthForm onLoginSuccess={handleLoginSuccess} />
-          )
-        }
-        postListComponent={
-          <PostList 
-            posts={posts} 
-            isLoading={isLoadingPosts} 
-            apiUrl={API_URL} 
-            onReportClick={switchToReportMode} 
-            currentUser={currentUser}
-            onDeletePost={handleDeletePost}
-            onPostSelect={handlePostSelect}
-          />
-        }
+      <Header
+        currentUser={currentUser}
+        onLogout={handleLogout}
+        onLoginClick={handleLoginClick}
+        onMyPageClick={handleMyPageClick} // Pass the new handler
       />
-      
-      <div className="map-container">
-        <MapView 
-          posts={posts}
-          mapCenter={mapCenter}
-          zoom={zoom}
-          setZoom={setZoom}
-          formMode={activePanel}
-          postLocation={postLocation}
-          reportLocation={reportLocation}
-          selectedPostIdForReport={selectedPostIdForReport}
-          setPostLocation={setPostLocation}
-          setReportLocation={setReportLocation}
-          setMapCenter={setMapCenter}
-          setSelectedPostIdForReport={setSelectedPostIdForReport}
-          switchToReportMode={switchToReportMode}
-          apiUrl={API_URL}
+      <div className="main-content">
+        <SlidingPanel 
+          activePanel={activePanel} 
+          setActivePanel={handleTabClick}
+          myPageComponent={ // Add the MyPage component
+            currentUser ? (
+              <MyPage 
+                currentUser={currentUser}
+                posts={posts}
+                onUpdateNickname={handleUpdateNickname}
+              />
+            ) : (
+              <AuthForm onLoginSuccess={handleLoginSuccess} />
+            )
+          }
+          postFormComponent={
+            isLoggedIn ? (
+              <PostForm 
+                onSubmit={handlePostSubmit} 
+                handleAddressSearch={handleAddressSearch} 
+                postLocation={postLocation} 
+                setPostLocation={setPostLocation} 
+              />
+            ) : (
+              <AuthForm onLoginSuccess={handleLoginSuccess} />
+            )
+          }
+          reportFormComponent={
+            isLoggedIn ? (
+              <ReportForm 
+                selectedPostName={selectedPostForReportData?.name || ''}
+                onSubmit={handleReportSubmit}
+                handleAddressSearch={handleAddressSearch} 
+                onCancel={() => setActivePanel('list')} // Go back to list
+                reportLocation={reportLocation}
+                setReportLocation={setReportLocation}
+              />
+            ) : (
+              <AuthForm onLoginSuccess={handleLoginSuccess} />
+            )
+          }
+          postListComponent={
+            <PostList 
+              posts={posts} 
+              isLoading={isLoadingPosts} 
+              apiUrl={API_URL} 
+              onReportClick={switchToReportMode} 
+              currentUser={currentUser}
+              onDeletePost={handleDeletePost}
+              onPostSelect={handlePostSelect}
+            />
+          }
         />
+        
+        <div className="map-container">
+          <MapView 
+            posts={posts}
+            mapCenter={mapCenter}
+            zoom={zoom}
+            setZoom={setZoom}
+            formMode={activePanel}
+            postLocation={postLocation}
+            reportLocation={reportLocation}
+            selectedPostIdForReport={selectedPostIdForReport}
+            setPostLocation={setPostLocation}
+            setReportLocation={setReportLocation}
+            setMapCenter={setMapCenter}
+            setSelectedPostIdForReport={setSelectedPostIdForReport}
+            switchToReportMode={switchToReportMode}
+            apiUrl={API_URL}
+          />
+        </div>
       </div>
     </div>
   );
