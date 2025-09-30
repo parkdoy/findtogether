@@ -40,14 +40,24 @@
   align-items: center;
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .post-list.loading::after {
   content: '';
-  width: 50px;
-  height: 50px;
-  background-image: url('/free-animated-icon-loading-17905699.gif');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+  box-sizing: border-box;
+  width: 35vmin;
+  height: 35vmin;
+  border: 10px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 .post-item h3 {

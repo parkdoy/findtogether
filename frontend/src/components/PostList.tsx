@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import type { Swiper as SwiperClass } from 'swiper/types';
 import 'swiper/css';
 import type { Post } from '../types';
 import SignedImage from './SignedImage';
 import './PostList.css';
 import { type UserProfile } from './LoginForm';
-import { mockPosts } from './mock/mock';
 
 interface PostListProps {
   posts: Post[];
@@ -15,12 +15,22 @@ interface PostListProps {
   currentUser: UserProfile | null;
   onDeletePost: (postId: string) => void;
   onPostSelect: (post: Post) => void;
+  selectedPostId: string | null;
 }
 
-const PostList = ({ posts, isLoading, apiUrl, onReportClick, currentUser, onDeletePost, onPostSelect }: PostListProps) => {
+const PostList = ({ posts, isLoading, apiUrl, onReportClick, currentUser, onDeletePost, onPostSelect, selectedPostId }: PostListProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [swiper, setSwiper] = useState<SwiperClass | null>(null);
   const containerClassName = `post-list ${isLoading ? 'loading' : ''}`;
-  const postsToRender = import.meta.env.DEV ? mockPosts : posts;
+
+  useEffect(() => {
+    if (selectedPostId && swiper && !swiper.destroyed) {
+      const index = posts.findIndex(p => p.id === selectedPostId);
+      if (index !== -1) {
+        swiper.slideTo(index);
+      }
+    }
+  }, [selectedPostId, swiper, posts]);
 
   return (
     <div className={containerClassName}>
@@ -28,9 +38,10 @@ const PostList = ({ posts, isLoading, apiUrl, onReportClick, currentUser, onDele
         <Swiper
           spaceBetween={50}
           slidesPerView={1}
+          onSwiper={setSwiper}
           onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
         >
-          {postsToRender.map((post, index) => (
+          {posts.map((post, index) => (
             <SwiperSlide key={post.id}>
               {(index >= activeIndex - 1 && index <= activeIndex + 1) ? (
                 <div className="post-item" onClick={() => onPostSelect(post)}>

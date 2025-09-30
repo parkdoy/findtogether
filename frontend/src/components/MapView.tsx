@@ -57,9 +57,9 @@ interface MapViewProps {
   setPostLocation: (location: Location) => void;
   setReportLocation: (location: Location) => void;
   setMapCenter: (center: [number, number]) => void;
-  setSelectedPostIdForReport: (id: string | null) => void;
   switchToReportMode: (id: string) => void;
   apiUrl: string;
+  onPostSelect: (postId: string) => void;
 }
 
 const MapView = ({ 
@@ -74,9 +74,9 @@ const MapView = ({
   setPostLocation, 
   setReportLocation, 
   setMapCenter, 
-  setSelectedPostIdForReport, 
   switchToReportMode,
-  apiUrl
+  apiUrl,
+  onPostSelect
 }: MapViewProps) => {
   const popupRef = useRef<L.Popup>(null);
 
@@ -109,12 +109,8 @@ const MapView = ({
                   icon={redIcon} // Use the red icon for the main post
                   eventHandlers={{
                     click: () => {
-                      if (selectedPostIdForReport === post.id) {
-                        setSelectedPostIdForReport(null);
-                      } else {
-                        setSelectedPostIdForReport(post.id);
-                        setMapCenter([postLatLng.lat, postLatLng.lng]);
-                      }
+                      onPostSelect(post.id);
+                      setMapCenter([postLatLng.lat, postLatLng.lng]);
                     },
                   }}
                 >

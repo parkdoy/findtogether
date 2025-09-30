@@ -4,7 +4,7 @@ import './App.css';
 
 import Header from './components/Header';
 import MyPage from './components/MyPage';
-import ServiceIntro from './components/ServiceIntro'; // Import ServiceIntro
+import ServiceIntro from './components/ServiceIntro';
 import type { Post, Location, Report } from './types';
 import { setupLeafletIcon } from './utils';
 import { updateGeocodedAddresses, geocodeLocation } from './utils/geocoding';
@@ -28,7 +28,6 @@ function App() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.5665, 126.9780]);
   const [zoom, setZoom] = useState(13);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-  const [selectedPostIdForReport, setSelectedPostIdForReport] = useState<string | null>(null);
 
   const [postLocation, setPostLocation] = useState<Location | null>(null);
   const [reportLocation, setReportLocation] = useState<Location | null>(null);
@@ -229,10 +228,20 @@ function App() {
     setActivePanel('report');
   };
 
-  const handlePostSelect = (post: Post) => {
+  const handlePostListItemSelect = (post: Post) => {
+    setSelectedPostId(post.id);
     if (post.lastSeenLocation) {
       setMapCenter([post.lastSeenLocation.lat, post.lastSeenLocation.lng]);
     }
+  };
+
+  const handlePostSelect = (postId: string) => {
+    setSelectedPostId(postId);
+    const post = posts.find(p => p.id === postId);
+    if (post?.lastSeenLocation) {
+      setMapCenter([post.lastSeenLocation.lat, post.lastSeenLocation.lng]);
+    }
+    setActivePanel('list');
   };
 
   const selectedPostForReportData = posts.find(p => p.id === selectedPostId);
@@ -244,13 +253,13 @@ function App() {
         onLogout={handleLogout}
         onLoginClick={handleLoginClick}
         onMyPageClick={handleMyPageClick}
-        onServiceIntroClick={handleServiceIntroClick} // Pass the new handler
+        onServiceIntroClick={handleServiceIntroClick}
       />
       <div className="main-content">
         <SlidingPanel 
           activePanel={activePanel} 
           setActivePanel={handleTabClick}
-          serviceIntroComponent={<ServiceIntro />} // Add the ServiceIntro component
+          serviceIntroComponent={<ServiceIntro />} 
           myPageComponent={
             currentUser ? (
               <MyPage 
@@ -280,7 +289,7 @@ function App() {
                 selectedPostName={selectedPostForReportData?.name || ''}
                 onSubmit={handleReportSubmit}
                 handleAddressSearch={handleAddressSearch} 
-                onCancel={() => setActivePanel('list')} // Go back to list
+                onCancel={() => setActivePanel('list')} 
                 reportLocation={reportLocation}
                 setReportLocation={setReportLocation}
               />
@@ -296,7 +305,8 @@ function App() {
               onReportClick={switchToReportMode} 
               currentUser={currentUser}
               onDeletePost={handleDeletePost}
-              onPostSelect={handlePostSelect}
+              onPostSelect={handlePostListItemSelect}
+              selectedPostId={selectedPostId}
             />
           }
         />
@@ -310,13 +320,13 @@ function App() {
             formMode={activePanel}
             postLocation={postLocation}
             reportLocation={reportLocation}
-            selectedPostIdForReport={selectedPostIdForReport}
+            selectedPostIdForReport={selectedPostId}
             setPostLocation={setPostLocation}
             setReportLocation={setReportLocation}
             setMapCenter={setMapCenter}
-            setSelectedPostIdForReport={setSelectedPostIdForReport}
             switchToReportMode={switchToReportMode}
             apiUrl={API_URL}
+            onPostSelect={handlePostSelect}
           />
         </div>
       </div>
